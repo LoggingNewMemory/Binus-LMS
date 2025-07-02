@@ -7,8 +7,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest  # Fk you Apple, Becoming Apple Developer Needs Money
-    # Why the hell people still use this nigga ahh platform
+    runs-on: macos-latest  # ** you Apple, Becoming Apple Developer Needs Money
+    # Why the hell people still use this capitalist ahh platform
 
     steps:
       - name: Checkout Repository
