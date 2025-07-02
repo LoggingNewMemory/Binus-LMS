@@ -1,8 +1,8 @@
 {
   "main": "main.js",
-  "name": "notion-electron-linux",
+  "name": "binus-lms-client",
   "version": "1.0.0",
-  "description": "Unofficial Notion desktop client for Linux. Made With Electron",
+  "description": "Unofficial Desktop Binus LMS Client. Made With Electron",
   "author": "Kanagawa Yamada <yamadakernel.project@gmail.com>",
   "homepage": "https://github.com/LoggingNewMemory",
   "devDependencies": {
@@ -18,8 +18,8 @@
     "dist:all": "electron-builder --linux --windows --mac"
   },
   "build": {
-    "appId": "com.kanagawa.yamada.notion.electron",
-    "productName": "Notion",
+    "appId": "com.kanagawa.yamada.binus.lms",
+    "productName": "Binus LMS",
     "linux": {
       "target": [
         "AppImage",
@@ -27,15 +27,15 @@
         "rpm"
       ],
       "category": "Utility",
-      "icon": "logo/notion.png"
+      "icon": "logo/LmsLogo.png"
     },
     "win": {
       "target": "nsis",
-      "icon": "logo/notion.ico"
+      "icon": "logo/LmsLogo.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "logo/notion.icns"
+      "icon": "logo/LmsLogo.icns"
     }
   }
 }
