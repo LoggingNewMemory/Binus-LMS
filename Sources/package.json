@@ -12,7 +12,10 @@
   },
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --linux"
+    "dist": "electron-builder --linux",
+    "dist:win": "electron-builder --windows",
+    "dist:mac": "electron-builder --mac",
+    "dist:all": "electron-builder --linux --windows --mac"
   },
   "build": {
     "appId": "com.kanagawa.yamada.notion.electron",
@@ -25,6 +28,14 @@
       ],
       "category": "Utility",
       "icon": "logo/notion.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "logo/notion.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "logo/notion.icns"
     }
   }
 }
