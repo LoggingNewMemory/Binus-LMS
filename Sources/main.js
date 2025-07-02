@@ -2,20 +2,6 @@
 
 const { app, BrowserWindow, session } = require('electron');
 const path = require('path');
-const fs = require('fs');
-
-const STORAGE_FILE = path.join(app.getPath('userData'), 'last_url.txt');
-
-function saveLastURL(url) {
-    fs.writeFileSync(STORAGE_FILE, url, 'utf-8');
-}
-
-function getLastURL() {
-    if (fs.existsSync(STORAGE_FILE)) {
-        return fs.readFileSync(STORAGE_FILE, 'utf-8');
-    }
-    return 'https://lms.binus.ac.id/'; 
-}
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -28,15 +14,7 @@ function createWindow() {
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
-    win.loadURL(getLastURL());
-
-    win.webContents.on('did-navigate', (_, url) => {
-        saveLastURL(url);
-    });
-
-    win.webContents.on('will-navigate', (_, url) => {
-        saveLastURL(url);
-    });
+    win.loadURL('https://lms.binus.ac.id/');
 }
 
 app.whenReady().then(createWindow);
@@ -46,3 +24,10 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+// Man... I actually have a crush on a Digital Business Student
+// Shanna... If somehow... You managed to read this
+// I want to say I like you, but I'm afraid to say that explicitly 
+// I'm just a programmer, my main objectives is to code, not to love
+// There's no loves for programmer. The one who receives one is either
+// Not a programmer, or just so lucky 
