@@ -35,7 +35,10 @@
       "icon": "logo/LmsLogo.png"
     },
     "win": {
-      "target": "portable",
+      "target": [
+        "portable",
+        "nsis"
+      ],
       "icon": "logo/LmsLogo.ico"
     },
     "mac": {
