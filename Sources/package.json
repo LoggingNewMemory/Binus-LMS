@@ -6,7 +6,7 @@
   "author": "Kanagawa Yamada <yamadakernel.project@gmail.com>",
   "homepage": "https://github.com/LoggingNewMemory",
   "devDependencies": {
-    "electron": "^35.1.2",
+    "electron": "^35.6.0",
     "electron-builder": "^26.0.12",
     "electron-icon-builder": "^2.0.1"
   },
