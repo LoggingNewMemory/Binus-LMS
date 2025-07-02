@@ -7,6 +7,7 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
         height: 800,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: false,
             partition: 'persist:main-session' 
