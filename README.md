@@ -16,9 +16,10 @@ How to install?
 - MacOS: 
   ```Just launch the .dmg``` <br />
 
-  Note: 
-  - Since I don't have Macbook or Apple device... Consider this is untested
-  - Also, I don't have Apple Developer Account, so it gives you warning when run it (Ignore it, it's because the .dmg is unsinged. Even I use GitHub action to build it) 
+Note: 
+- Since I don't have Macbook or Apple device... Consider MacOS Build is untested
+- Also, I don't have Apple Developer Account, so it gives you warning when run it (Ignore it, it's because the .dmg is unsinged. Even I use GitHub action to build it) 
+- Same with the Windows setup version, since I don't have the funds to sign the app. I only rely on the built in signtool, so it will show a warning
 
 Support Me: <br />
 https://saweria.co/kanagawayamada (ID / PH) <br />
