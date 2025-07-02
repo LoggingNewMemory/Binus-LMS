@@ -24,9 +24,9 @@
       "target": [
         "AppImage",
         "deb",
-        "rpm"
+        "pacman"
       ],
-      "category": "Utility",
+      "category": "Education",
       "icon": "logo/LmsLogo.png"
     },
     "win": {
