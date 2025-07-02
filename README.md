@@ -12,7 +12,7 @@ How to install?
 - AppImage:
   ```Execute as program, then double click```
 - Windows:
-  ```Run the .exe```
+  ```Download Run the .exe (There's "Setup" if you want to install & Portable app (No Setup))```
 - MacOS: 
   ```Just launch the .dmg``` <br />
 
