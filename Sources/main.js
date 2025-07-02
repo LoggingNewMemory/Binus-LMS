@@ -14,7 +14,7 @@ function getLastURL() {
     if (fs.existsSync(STORAGE_FILE)) {
         return fs.readFileSync(STORAGE_FILE, 'utf-8');
     }
-    return 'https://www.notion.so/desktop'; 
+    return 'https://lms.binus.ac.id/'; 
 }
 
 function createWindow() {
@@ -25,7 +25,7 @@ function createWindow() {
             nodeIntegration: false,
             partition: 'persist:main-session' 
         },
-        icon: path.join(__dirname, 'logo/notion.png')
+        icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
     win.loadURL(getLastURL());
