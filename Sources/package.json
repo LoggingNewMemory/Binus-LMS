@@ -21,6 +21,10 @@
     "productName": "Binus LMS",
     "compression": "maximum",
     "asar": true,
+    "files": [
+    "main.js",
+    "logo/*"
+    ],
     "linux": {
       "target": [
         "AppImage",
