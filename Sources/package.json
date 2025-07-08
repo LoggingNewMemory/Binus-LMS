@@ -19,7 +19,6 @@
   "build": {
     "appId": "com.kanagawa.yamada.binus.lms",
     "productName": "Binus LMS",
-    "compression": "maximum",
     "asar": true,
     "files": [
       "main.js",
