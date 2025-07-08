@@ -3,6 +3,9 @@ name: Build All Platforms
 on:
   workflow_dispatch:
 
+env:
+  COSIGN_EXPERIMENTAL: 1  # Required for keyless signing
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -23,11 +26,24 @@ jobs:
         working-directory: Sources
         run: npm run dist:win
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign Windows Artifact
+        working-directory: Sources/dist
+        run: |
+          for file in *.exe; do
+            cosign sign-blob --yes "$file" --output-signature="$file.sig" --output-certificate="$file.cert"
+          done
+
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-Windows
-          path: Sources/dist/*.exe
+          path: |
+            Sources/dist/*.exe
+            Sources/dist/*.sig
+            Sources/dist/*.cert
           compression-level: 6
 
   build-linux:
@@ -49,6 +65,16 @@ jobs:
         working-directory: Sources
         run: npm run dist
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign Linux Artifacts
+        working-directory: Sources/dist
+        run: |
+          for file in *.AppImage *.deb; do
+            cosign sign-blob --yes "$file" --output-signature="$file.sig" --output-certificate="$file.cert"
+          done
+
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -56,6 +82,8 @@ jobs:
           path: |
             Sources/dist/*.AppImage
             Sources/dist/*.deb
+            Sources/dist/*.sig
+            Sources/dist/*.cert
           compression-level: 6
 
   build-macos:
@@ -77,11 +105,24 @@ jobs:
         working-directory: Sources
         run: npm run dist:mac
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign macOS Artifact
+        working-directory: Sources/dist
+        run: |
+          for file in *.dmg; do
+            cosign sign-blob --yes "$file" --output-signature="$file.sig" --output-certificate="$file.cert"
+          done
+
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-macOS
-          path: Sources/dist/*.dmg
+          path: |
+            Sources/dist/*.dmg
+            Sources/dist/*.sig
+            Sources/dist/*.cert
           compression-level: 6
 
   merge-artifacts:
