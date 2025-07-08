@@ -28,8 +28,7 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb",
-        "pacman"
+        "deb"
       ],
       "category": "Education",
       "icon": "logo/LmsLogo.png"
