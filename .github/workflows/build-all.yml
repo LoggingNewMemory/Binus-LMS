@@ -83,3 +83,32 @@ jobs:
           name: BinusLMS-macOS
           path: Sources/dist/*.dmg
           compression-level: 6
+
+  merge-artifacts:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-Windows
+          path: combined-build/windows
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-Linux
+          path: combined-build/linux
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-macOS
+          path: combined-build/macos
+
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BinusLMS-AllPlatforms
+          path: combined-build/
+          compression-level: 6
