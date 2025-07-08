@@ -16,13 +16,14 @@ function createWindow() {
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
-    // Create loading screen with proper dimensions
+    // Create loading screen with Linux-compatible settings
     const loadingScreen = new BrowserWindow({
         width: 500,
         height: 400,
         frame: false,
         alwaysOnTop: true,
-        transparent: true,
+        transparent: false, // Changed to false for Linux compatibility
+        backgroundColor: '#ffffff', // Added background color
         resizable: false,
         webPreferences: {
             nodeIntegration: false

@@ -22,8 +22,9 @@
     "compression": "maximum",
     "asar": true,
     "files": [
-    "main.js",
-    "logo/*"
+      "main.js",
+      "loading.html",
+      "logo/*"
     ],
     "linux": {
       "target": [
