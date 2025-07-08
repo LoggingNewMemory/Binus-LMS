@@ -3,11 +3,6 @@ name: Build All Platforms
 on:
   workflow_dispatch:
 
-# Required permissions for Sigstore signing
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -28,27 +23,11 @@ jobs:
         working-directory: Sources
         run: npm run dist:win
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
-
-      - name: Sign Windows Executables
-        run: |
-          for file in Sources/dist/*.exe; do
-            if [ -f "$file" ]; then
-              echo "Signing $file"
-              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
-            fi
-          done
-        shell: bash
-
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-Windows
-          path: |
-            Sources/dist/*.exe
-            Sources/dist/*.exe.sig
-            Sources/dist/*.exe.crt
+          path: Sources/dist/*.exe
           compression-level: 6
 
   build-linux:
@@ -70,18 +49,6 @@ jobs:
         working-directory: Sources
         run: npm run dist
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
-
-      - name: Sign Linux Binaries
-        run: |
-          for file in Sources/dist/*.AppImage Sources/dist/*.deb; do
-            if [ -f "$file" ]; then
-              echo "Signing $file"
-              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
-            fi
-          done
-
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -89,10 +56,6 @@ jobs:
           path: |
             Sources/dist/*.AppImage
             Sources/dist/*.deb
-            Sources/dist/*.AppImage.sig
-            Sources/dist/*.deb.sig
-            Sources/dist/*.AppImage.crt
-            Sources/dist/*.deb.crt
           compression-level: 6
 
   build-macos:
@@ -114,26 +77,11 @@ jobs:
         working-directory: Sources
         run: npm run dist:mac
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
-
-      - name: Sign macOS Binaries
-        run: |
-          for file in Sources/dist/*.dmg; do
-            if [ -f "$file" ]; then
-              echo "Signing $file"
-              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
-            fi
-          done
-
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-macOS
-          path: |
-            Sources/dist/*.dmg
-            Sources/dist/*.dmg.sig
-            Sources/dist/*.dmg.crt
+          path: Sources/dist/*.dmg
           compression-level: 6
 
   merge-artifacts:
@@ -157,53 +105,6 @@ jobs:
         with:
           name: BinusLMS-macOS
           path: combined-build/macos
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
-
-      - name: Generate Verification Instructions
-        run: |
-          cat > combined-build/VERIFICATION.md << 'EOF'
-          # Sigstore Verification Instructions
-
-          This release has been signed using Sigstore for enhanced security and authenticity verification.
-
-          ## Verification Steps
-
-          1. Install cosign: https://docs.sigstore.dev/cosign/installation/
-          2. Verify any binary using its signature and certificate files:
-
-          ```bash
-          cosign verify-blob --certificate <file>.crt --signature <file>.sig <file>
-          ```
-
-          ## Examples
-
-          ### Windows
-          ```bash
-          cosign verify-blob --certificate BinusLMS-Setup.exe.crt --signature BinusLMS-Setup.exe.sig BinusLMS-Setup.exe
-          ```
-
-          ### Linux
-          ```bash
-          cosign verify-blob --certificate BinusLMS.AppImage.crt --signature BinusLMS.AppImage.sig BinusLMS.AppImage
-          cosign verify-blob --certificate BinusLMS.deb.crt --signature BinusLMS.deb.sig BinusLMS.deb
-          ```
-
-          ### macOS
-          ```bash
-          cosign verify-blob --certificate BinusLMS.dmg.crt --signature BinusLMS.dmg.sig BinusLMS.dmg
-          ```
-
-          ## What This Means
-
-          - **Authenticity**: The signature proves the binary was built by the official GitHub Actions workflow
-          - **Integrity**: The signature ensures the binary hasn't been tampered with after signing
-          - **Transparency**: All signing events are recorded in the public Rekor transparency log
-          - **Non-repudiation**: The signature is tied to the specific GitHub Actions run and cannot be forged
-
-          For more information about Sigstore, visit: https://www.sigstore.dev/
-          EOF
 
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
