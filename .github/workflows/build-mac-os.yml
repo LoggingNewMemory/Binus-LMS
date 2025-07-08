@@ -29,5 +29,4 @@ jobs:
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BinusLMS-macOS
           path: Sources/dist/*.dmg
