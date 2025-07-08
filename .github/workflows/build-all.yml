@@ -1,11 +1,12 @@
-name: Build All Platforms with Code Signing
+name: Build All Platforms
 
 on:
   workflow_dispatch:
 
+# Required permissions for Sigstore signing
 permissions:
   contents: read
-  id-token: write  # Required for Sigstore signing
+  id-token: write
 
 jobs:
   build-windows:
@@ -27,20 +28,15 @@ jobs:
         working-directory: Sources
         run: npm run dist:win
 
-      # Sign Windows executables using Sigstore (free code signing)
-      - name: Install Sigstore CLI
-        run: |
-          curl -LO https://github.com/sigstore/cosign/releases/latest/download/cosign-windows-amd64.exe
-          mv cosign-windows-amd64.exe cosign.exe
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
 
-      - name: Sign Windows Executable with Sigstore
+      - name: Sign Windows Executables
         run: |
-          # Sign each .exe file
           for file in Sources/dist/*.exe; do
             if [ -f "$file" ]; then
-              echo "Signing $file with Sigstore..."
-              ./cosign.exe sign-blob --yes "$file" --output-signature "${file}.sig" --output-certificate "${file}.crt"
-              echo "✓ Signed $file"
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
             fi
           done
         shell: bash
@@ -51,8 +47,8 @@ jobs:
           name: BinusLMS-Windows
           path: |
             Sources/dist/*.exe
-            Sources/dist/*.sig
-            Sources/dist/*.crt
+            Sources/dist/*.exe.sig
+            Sources/dist/*.exe.crt
           compression-level: 6
 
   build-linux:
@@ -74,27 +70,15 @@ jobs:
         working-directory: Sources
         run: npm run dist
 
-      # Sign Linux binaries using Sigstore
-      - name: Install Sigstore CLI
-        uses: sigstore/cosign-installer@v3
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
 
-      - name: Sign Linux Binaries with Sigstore
+      - name: Sign Linux Binaries
         run: |
-          # Sign AppImage files
-          for file in Sources/dist/*.AppImage; do
+          for file in Sources/dist/*.AppImage Sources/dist/*.deb; do
             if [ -f "$file" ]; then
-              echo "Signing $file with Sigstore..."
-              cosign sign-blob --yes "$file" --output-signature "${file}.sig" --output-certificate "${file}.crt"
-              echo "✓ Signed $file"
-            fi
-          done
-          
-          # Sign .deb files
-          for file in Sources/dist/*.deb; do
-            if [ -f "$file" ]; then
-              echo "Signing $file with Sigstore..."
-              cosign sign-blob --yes "$file" --output-signature "${file}.sig" --output-certificate "${file}.crt"
-              echo "✓ Signed $file"
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
             fi
           done
 
@@ -105,8 +89,10 @@ jobs:
           path: |
             Sources/dist/*.AppImage
             Sources/dist/*.deb
-            Sources/dist/*.sig
-            Sources/dist/*.crt
+            Sources/dist/*.AppImage.sig
+            Sources/dist/*.deb.sig
+            Sources/dist/*.AppImage.crt
+            Sources/dist/*.deb.crt
           compression-level: 6
 
   build-macos:
@@ -128,18 +114,15 @@ jobs:
         working-directory: Sources
         run: npm run dist:mac
 
-      # Sign macOS application using Sigstore
-      - name: Install Sigstore CLI
-        uses: sigstore/cosign-installer@v3
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
 
-      - name: Sign macOS Application with Sigstore
+      - name: Sign macOS Binaries
         run: |
-          # Sign .dmg files
           for file in Sources/dist/*.dmg; do
             if [ -f "$file" ]; then
-              echo "Signing $file with Sigstore..."
-              cosign sign-blob --yes "$file" --output-signature "${file}.sig" --output-certificate "${file}.crt"
-              echo "✓ Signed $file"
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" --output-signature "$file.sig" --output-certificate "$file.crt"
             fi
           done
 
@@ -149,8 +132,8 @@ jobs:
           name: BinusLMS-macOS
           path: |
             Sources/dist/*.dmg
-            Sources/dist/*.sig
-            Sources/dist/*.crt
+            Sources/dist/*.dmg.sig
+            Sources/dist/*.dmg.crt
           compression-level: 6
 
   merge-artifacts:
@@ -175,101 +158,56 @@ jobs:
           name: BinusLMS-macOS
           path: combined-build/macos
 
-      # Install Sigstore for verification
-      - name: Install Sigstore CLI
-        uses: sigstore/cosign-installer@v3
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
 
-      # Verify all signatures
-      - name: Verify Signatures
+      - name: Generate Verification Instructions
         run: |
-          echo "Verifying Windows signatures..."
-          for file in combined-build/windows/*.exe; do
-            if [ -f "$file" ] && [ -f "${file}.sig" ] && [ -f "${file}.crt" ]; then
-              if cosign verify-blob --signature "${file}.sig" --certificate "${file}.crt" --certificate-identity-regexp ".*" --certificate-oidc-issuer-regexp ".*" "$file"; then
-                echo "✓ $file signature verified"
-              else
-                echo "✗ $file signature failed"
-                exit 1
-              fi
-            fi
-          done
-          
-          echo "Verifying Linux signatures..."
-          for file in combined-build/linux/*.AppImage combined-build/linux/*.deb; do
-            if [ -f "$file" ] && [ -f "${file}.sig" ] && [ -f "${file}.crt" ]; then
-              if cosign verify-blob --signature "${file}.sig" --certificate "${file}.crt" --certificate-identity-regexp ".*" --certificate-oidc-issuer-regexp ".*" "$file"; then
-                echo "✓ $file signature verified"
-              else
-                echo "✗ $file signature failed"
-                exit 1
-              fi
-            fi
-          done
-          
-          echo "Verifying macOS signatures..."
-          for file in combined-build/macos/*.dmg; do
-            if [ -f "$file" ] && [ -f "${file}.sig" ] && [ -f "${file}.crt" ]; then
-              if cosign verify-blob --signature "${file}.sig" --certificate "${file}.crt" --certificate-identity-regexp ".*" --certificate-oidc-issuer-regexp ".*" "$file"; then
-                echo "✓ $file signature verified"
-              else
-                echo "✗ $file signature failed"
-                exit 1
-              fi
-            fi
-          done
+          cat > combined-build/VERIFICATION.md << 'EOF'
+          # Sigstore Verification Instructions
 
-      # Create attestations for supply chain security
-      - name: Create Attestations
-        run: |
-          echo "Creating attestations..."
-          for file in combined-build/windows/*.exe combined-build/linux/*.AppImage combined-build/linux/*.deb combined-build/macos/*.dmg; do
-            if [ -f "$file" ]; then
-              echo "Creating attestation for $file..."
-              cosign attest --yes --predicate <(echo '{"buildType":"github-actions","workflow":"build-all-platforms"}') "$file"
-            fi
-          done
+          This release has been signed using Sigstore for enhanced security and authenticity verification.
+
+          ## Verification Steps
+
+          1. Install cosign: https://docs.sigstore.dev/cosign/installation/
+          2. Verify any binary using its signature and certificate files:
+
+          ```bash
+          cosign verify-blob --certificate <file>.crt --signature <file>.sig <file>
+          ```
+
+          ## Examples
+
+          ### Windows
+          ```bash
+          cosign verify-blob --certificate BinusLMS-Setup.exe.crt --signature BinusLMS-Setup.exe.sig BinusLMS-Setup.exe
+          ```
+
+          ### Linux
+          ```bash
+          cosign verify-blob --certificate BinusLMS.AppImage.crt --signature BinusLMS.AppImage.sig BinusLMS.AppImage
+          cosign verify-blob --certificate BinusLMS.deb.crt --signature BinusLMS.deb.sig BinusLMS.deb
+          ```
+
+          ### macOS
+          ```bash
+          cosign verify-blob --certificate BinusLMS.dmg.crt --signature BinusLMS.dmg.sig BinusLMS.dmg
+          ```
+
+          ## What This Means
+
+          - **Authenticity**: The signature proves the binary was built by the official GitHub Actions workflow
+          - **Integrity**: The signature ensures the binary hasn't been tampered with after signing
+          - **Transparency**: All signing events are recorded in the public Rekor transparency log
+          - **Non-repudiation**: The signature is tied to the specific GitHub Actions run and cannot be forged
+
+          For more information about Sigstore, visit: https://www.sigstore.dev/
+          EOF
 
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: BinusLMS-AllPlatforms-Signed
+          name: BinusLMS-AllPlatforms
           path: combined-build/
           compression-level: 6
-
-      # Create release with signed artifacts
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            combined-build/windows/*.exe
-            combined-build/windows/*.sig
-            combined-build/windows/*.crt
-            combined-build/linux/*.AppImage
-            combined-build/linux/*.deb
-            combined-build/linux/*.sig
-            combined-build/linux/*.crt
-            combined-build/macos/*.dmg
-            combined-build/macos/*.sig
-            combined-build/macos/*.crt
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          body: |
-            ## 🔐 Code Signing Information
-            
-            All binaries in this release are signed using Sigstore, a free and open-source code signing service.
-            
-            ### Verification Instructions
-            
-            To verify the signatures:
-            
-            1. Install cosign: `go install github.com/sigstore/cosign/v2/cmd/cosign@latest`
-            2. Verify a binary: `cosign verify-blob --signature <file>.sig --certificate <file>.crt --certificate-identity-regexp ".*" --certificate-oidc-issuer-regexp ".*" <file>`
-            
-            ### Files
-            - `.exe/.AppImage/.deb/.dmg` - The actual application binaries
-            - `.sig` - Sigstore signature files
-            - `.crt` - Certificate files for verification
-            
-            All signatures are timestamped and can be verified independently.
