@@ -23,11 +23,16 @@ jobs:
         working-directory: Sources
         run: npm run dist:win
 
+      - name: Extract and Upload Windows Artifact
+        run: |
+          mkdir -p upload/windows
+          cp Sources/dist/*.exe upload/windows/
+        
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-Windows
-          path: Sources/dist/*.exe
+          path: upload/windows/
 
   build-linux:
     runs-on: ubuntu-latest
@@ -48,13 +53,17 @@ jobs:
         working-directory: Sources
         run: npm run dist
 
+      - name: Extract and Upload Linux Artifact
+        run: |
+          mkdir -p upload/linux
+          cp Sources/dist/*.AppImage upload/linux/
+          cp Sources/dist/*.deb upload/linux/
+        
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-Linux
-          path: |
-            Sources/dist/*.AppImage
-            Sources/dist/*.deb
+          path: upload/linux/
 
   build-macos:
     runs-on: macos-latest
@@ -75,8 +84,13 @@ jobs:
         working-directory: Sources
         run: npm run dist:mac
 
+      - name: Extract and Upload macOS Artifact
+        run: |
+          mkdir -p upload/macos
+          cp Sources/dist/*.dmg upload/macos/
+        
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-macOS
-          path: Sources/dist/*.dmg
+          path: upload/macos/
