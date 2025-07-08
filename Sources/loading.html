@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BINUS LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F8FAFC;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 100px 100px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        .loading-container {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            max-width: 400px;
+            animation: cardFade 0.8s ease-out;
+        }
+
+        .logo-container {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: url('logo/LmsLogo.png') center/contain no-repeat;
+            border-radius: 16px;
+            margin: 0 auto;
+            animation: logoFloat 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: logoShine 4s ease-in-out infinite;
+            transform: rotate(45deg);
+        }
+
+        .title {
+            color: #1E293B;
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: rgba(30, 41, 59, 0.6);
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 40px;
+        }
+
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-ring .fill {
+            stroke: #667eea;
+            stroke-dasharray: 251;
+            stroke-dashoffset: 251;
+            animation: progressRing 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+        }
+
+        .loading-text {
+            color: rgba(30, 41, 59, 0.8);
+            font-size: 14px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 4px;
+            height: 4px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 50%;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .orb {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbPulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
+        }
+
+        @keyframes cardFade {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes logoShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+
+        @keyframes progressRing {
+            0% { stroke-dashoffset: 251; }
+            50% { stroke-dashoffset: 125; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.1; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.2; }
+        }
+
+        @media (max-width: 480px) {
+            .loading-container {
+                margin: 20px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="orb"></div>
+    
+    <div class="loading-container">
+        <div class="logo-container">
+            <div class="logo"></div>
+        </div>
+        
+        <h1 class="title">BINUS LMS</h1>
+        <p class="subtitle">Learning Management System</p>
+        
+        <div class="progress-ring">
+            <svg>
+                <circle class="bg" cx="40" cy="40" r="36"></circle>
+                <circle class="fill" cx="40" cy="40" r="36"></circle>
+            </svg>
+        </div>
+        
+        <div class="loading-text">
+            Loading
+            <div class="dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
