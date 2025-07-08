@@ -2,9 +2,6 @@ name: Build All Platforms with Code Signing
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
 
 permissions:
   contents: read
