@@ -28,7 +28,6 @@ jobs:
         with:
           name: BinusLMS-Windows
           path: Sources/dist/*.exe
-          compression-level: 0
 
   build-linux:
     runs-on: ubuntu-latest
@@ -56,7 +55,6 @@ jobs:
           path: |
             Sources/dist/*.AppImage
             Sources/dist/*.deb
-          compression-level: 0
 
   build-macos:
     runs-on: macos-latest
@@ -82,4 +80,3 @@ jobs:
         with:
           name: BinusLMS-macOS
           path: Sources/dist/*.dmg
-          compression-level: 0
