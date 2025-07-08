@@ -19,7 +19,24 @@ How to install?
 Note: 
 - Since I don't have Macbook or Apple device... Consider MacOS Build is untested
 - Also, I don't have Apple Developer Account, so it gives you warning when run it (Ignore it, it's because the .dmg is unsinged. Even I use GitHub action to build it) 
-- Same with the Windows setup version, since I don't have the funds to sign the app. I only rely on the built in signtool, so it will show a warning (To run click "More Info" then Run Anyway)
+
+## Windows SmartScreen Warning
+
+When downloading and running the app, you may see a "Windows protected your PC" warning. This is normal for unsigned applications.
+
+### How to install safely:
+
+1. Click "More info" in the SmartScreen dialog
+2. Click "Run anyway"
+3. This is safe because:
+   - ✅ Source code is publicly available
+   - ✅ Built with GitHub Actions (transparent build process)
+   - ✅ No malicious code (you can verify yourself)
+
+### Why this happens:
+- Code signing certificates cost $100-400/year
+- As an open-source developer, I can't afford this
+- The warning disappears as more people download and use the app
 
 Support Me: <br />
 https://saweria.co/kanagawayamada (ID / PH) <br />
