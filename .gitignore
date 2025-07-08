@@ -1,3 +1,4 @@
 Sources/node_modules
 Sources/dist
 Release/
+!Release/MoveAll.sh
