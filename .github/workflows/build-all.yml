@@ -56,7 +56,6 @@ jobs:
           path: |
             Sources/dist/*.AppImage
             Sources/dist/*.deb
-            Sources/dist/*.rpm
             Sources/dist/*.pacman
           compression-level: 6
 
