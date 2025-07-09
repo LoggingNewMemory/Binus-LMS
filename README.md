@@ -1,14 +1,10 @@
 ## Binus LMS Unofficial Client
 ### Unofficial Desktop Client of Binus LMS, Built in Electron
 
-
-How to install?
-
+How to Install?
 - Go to Release page and get your LMS Unofficial Client
 - for ubuntu / Debian:
    ```sudo apt install binus-lms-client_1.0.0_amd64.deb```
-- for Arch Linux:
-  ```sudo pacman -U binus-lms-client-1.0.0.pacman```
 - AppImage:
   ```Execute as program, then double click```
 - Windows:
@@ -36,7 +32,6 @@ When downloading and running the app, you may see a "Windows protected your PC" 
 ### Why this happens:
 - Code signing certificates cost $100-400/year
 - As an open-source developer, I can't afford this
-- The warning disappears as more people download and use the app
 
 Support Me: <br />
 https://saweria.co/kanagawayamada (ID / PH) <br />
