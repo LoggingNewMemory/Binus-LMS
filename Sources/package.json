@@ -28,6 +28,7 @@
     ],
     "linux": {
       "target": [
+        "rpm",
         "AppImage",
         "deb",
         "pacman"

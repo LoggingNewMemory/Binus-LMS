@@ -42,7 +42,7 @@ jobs:
           node-version: 20
 
       - name: Install System Dependencies
-        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools rpm-tools
 
       - name: Install Dependencies
         working-directory: Sources
@@ -60,6 +60,7 @@ jobs:
             Sources/dist/*.AppImage
             Sources/dist/*.deb
             Sources/dist/*.pacman
+            Sources/dist/*.rpm
           compression-level: 6
 
   build-macos:
