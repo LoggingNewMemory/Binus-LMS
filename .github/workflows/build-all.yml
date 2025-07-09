@@ -16,16 +16,18 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
+        working-directory: Sources
         run: npm install
 
       - name: Build Windows App
+        working-directory: Sources
         run: npm run dist:win
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-Windows
-          path: dist/*.exe
+          path: Sources/dist/*.exe
           compression-level: 6
 
   build-linux:
@@ -40,9 +42,11 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
+        working-directory: Sources
         run: npm install
 
       - name: Build Linux App
+        working-directory: Sources
         run: npm run dist
 
       - name: Upload Linux Artifact
@@ -50,9 +54,10 @@ jobs:
         with:
           name: BinusLMS-Linux
           path: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.rpm
+            Sources/dist/*.AppImage
+            Sources/dist/*.deb
+            Sources/dist/*.rpm
+            Sources/dist/*.pacman
           compression-level: 6
 
   build-macos:
@@ -67,16 +72,18 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
+        working-directory: Sources
         run: npm install
 
       - name: Build macOS App
+        working-directory: Sources
         run: npm run dist:mac
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BinusLMS-macOS
-          path: dist/*.dmg
+          path: Sources/dist/*.dmg
           compression-level: 6
 
   merge-artifacts:
