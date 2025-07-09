@@ -1,4 +1,5 @@
-## Binus LMS Unofficial Client
+![Banner](https://github.com/user-attachments/assets/e22023ba-dad5-4bf7-b406-a62be50210a0)
+
 ### Unofficial Desktop Client of Binus LMS, Built in Electron
 
 How to Install?
