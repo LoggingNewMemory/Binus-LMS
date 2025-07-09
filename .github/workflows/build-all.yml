@@ -41,6 +41,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
+
       - name: Install Dependencies
         working-directory: Sources
         run: npm install
