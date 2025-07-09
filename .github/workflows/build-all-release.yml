@@ -1,0 +1,163 @@
+name: Build All Platforms with Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a new release'
+        required: false
+        default: false
+        type: boolean
+      tag_name:
+        description: 'Tag name for the release'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        working-directory: Sources
+        run: npm install
+
+      - name: Build Windows App
+        working-directory: Sources
+        run: npm run dist:win
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BinusLMS-Windows
+          path: Sources/dist/*.exe
+          compression-level: 6
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools rpm
+
+      - name: Install Dependencies
+        working-directory: Sources
+        run: npm install
+
+      - name: Build Linux App
+        working-directory: Sources
+        run: npm run dist
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BinusLMS-Linux
+          path: |
+            Sources/dist/*.AppImage
+            Sources/dist/*.deb
+            Sources/dist/*.pacman
+            Sources/dist/*.rpm
+          compression-level: 6
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        working-directory: Sources
+        run: npm install
+
+      - name: Build macOS App
+        working-directory: Sources
+        run: npm run dist:mac
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BinusLMS-macOS
+          path: Sources/dist/*.dmg
+          compression-level: 6
+
+  merge-artifacts:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-Windows
+          path: combined-build/windows
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-Linux
+          path: combined-build/linux
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-macOS
+          path: combined-build/macos
+
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BinusLMS-AllPlatforms
+          path: combined-build/
+          compression-level: 6
+
+  create-release:
+    if: ${{ inputs.create_release }}
+    needs: [merge-artifacts]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BinusLMS-AllPlatforms
+          path: release-assets/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.tag_name || github.run_number }}
+          name: Release ${{ inputs.tag_name || github.run_number }}
+          files: |
+            release-assets/windows/*.exe
+            release-assets/linux/*.AppImage
+            release-assets/linux/*.deb
+            release-assets/linux/*.pacman
+            release-assets/linux/*.rpm
+            release-assets/macos/*.dmg
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
