@@ -1,7 +1,7 @@
 {
   "main": "main.js",
   "name": "binus-lms-client",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Unofficial Desktop Binus LMS Client. Made With Electron",
   "author": "Kanagawa Yamada <yamadakernel.project@gmail.com>",
   "homepage": "https://github.com/LoggingNewMemory",
@@ -29,7 +29,8 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "pacman"
       ],
       "category": "Education",
       "icon": "logo/LmsLogo.png"

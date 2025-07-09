@@ -137,3 +137,8 @@ app.on('before-quit', (event) => {
         showExitAnimation();
     }
 });
+
+// With 1.2.0, I Don't want to work with a fckin Digital Business Ahh Student
+// I rather work with my Lab or my own Community
+// That nigga literally think this techincal testing is some kind of romantic ahh novel
+// Nigga you make me hate Digital Business Again dawg +_+
