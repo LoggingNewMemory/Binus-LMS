@@ -42,7 +42,7 @@ jobs:
           node-version: 20
 
       - name: Install System Dependencies
-        run: sudo apt-get update && sudo apt-get install -y libarchive-tools rpm-tools
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools rpm
 
       - name: Install Dependencies
         working-directory: Sources
