@@ -149,7 +149,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ inputs.tag_name || github.run_number }}
-          name: Release ${{ inputs.tag_name || github.run_number }}
+          name: ${{ inputs.tag_name || github.run_number }}
           files: |
             release-assets/windows/*.exe
             release-assets/linux/*.AppImage
