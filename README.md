@@ -3,8 +3,12 @@
 
 How to Install?
 - Go to Release page and get your LMS Unofficial Client
-- for ubuntu / Debian:
-   ```sudo apt install binus-lms-client_1.0.0_amd64.deb```
+- Ubuntu / Debian:
+   ```sudo apt install binus-lms-client_x.x.x_amd64.deb```
+- Arch Linux:
+   ```sudo pacman -U binus-lms-client_x.x.x.pacman```
+- Fedora:
+   ```sudo dnf install binus-lms-client-x.x.x.x86_64.rpm```
 - AppImage:
   ```Execute as program, then double click```
 - Windows:
