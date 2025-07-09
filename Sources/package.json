@@ -21,9 +21,10 @@
     "productName": "Binus LMS",
     "asar": true,
     "files": [
-      "main.js",
-      "loading.html",
-      "logo/*"
+    "main.js",
+    "loading.html",
+    "exit.html",
+    "logo/*"
     ],
     "linux": {
       "target": [
