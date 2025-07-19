@@ -2,11 +2,52 @@
 
 const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 let exitScreen;
 let tray;
 let isDarkModeEnabled = false;
+
+// Configuration file path
+const configPath = path.join(app.getPath('userData'), 'config.json');
+
+// Load configuration from file
+function loadConfig() {
+    try {
+        if (fs.existsSync(configPath)) {
+            const configData = fs.readFileSync(configPath, 'utf8');
+            const config = JSON.parse(configData);
+            isDarkModeEnabled = config.isDarkModeEnabled || false;
+            console.log('Configuration loaded:', config);
+        } else {
+            console.log('No configuration file found, using defaults');
+        }
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+        isDarkModeEnabled = false;
+    }
+}
+
+// Save configuration to file
+function saveConfig() {
+    try {
+        const config = {
+            isDarkModeEnabled: isDarkModeEnabled
+        };
+        
+        // Ensure the directory exists
+        const configDir = path.dirname(configPath);
+        if (!fs.existsSync(configDir)) {
+            fs.mkdirSync(configDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+        console.log('Configuration saved:', config);
+    } catch (error) {
+        console.error('Error saving configuration:', error);
+    }
+}
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -22,78 +63,8 @@ function createWindow() {
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
-    // Menu Bar
-    const menuTemplate = [
-        {
-            label: 'Account',
-            submenu: [
-                {
-                    label: 'Reset Account',
-                    click: () => {
-                        resetAccount();
-                    }
-                },
-            ]
-        },
-        {
-            label: 'Web Controls',
-            submenu: [
-                {
-                    label: 'Reload',
-                    accelerator: 'CmdOrCtrl+R',
-                    click: () => {
-                        mainWindow.reload();
-                    }
-                },
-                {
-                    label: 'Toggle Developer Tools',
-                    accelerator: 'F12',
-                    click: () => {
-                        mainWindow.webContents.toggleDevTools();
-                    }
-                },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: 'Toggle Dark Mode',
-                    accelerator: 'CmdOrCtrl+D',
-                    click: () => {
-                        toggleDarkMode();
-                    }
-                }
-            ]
-        },
-        {
-            label: 'App Controls',
-            submenu: [
-                {
-                    label: 'Minimize',
-                    accelerator: 'CmdOrCtrl+M',
-                    click: () => {
-                        mainWindow.minimize();
-                    }
-                },
-                {
-                    label: 'Hide to System Tray',
-                    accelerator: 'CmdOrCtrl+H',
-                    click: () => {
-                        mainWindow.hide();
-                    }
-                },
-                {
-                    label: 'Quit',
-                    accelerator: 'CmdOrCtrl+Q',
-                    click: () => {
-                        showExitAnimation();
-                    }
-                }
-            ]
-        }
-    ];
-
-    const menu = Menu.buildFromTemplate(menuTemplate);
-    Menu.setApplicationMenu(menu);
+    // Menu Bar - Initialize with current dark mode state
+    createMenu();
 
     // Create loading screen with Linux-compatible settings
     const loadingScreen = new BrowserWindow({
@@ -166,75 +137,7 @@ function createWindow() {
     });
 }
 
-function initializeDarkReader() {
-    // Inject Dark Reader into the page
-    // Yamada Note: I better use streamed from CDN (Makes it easier if Dark Reader updates dawg)
-    mainWindow.webContents.executeJavaScript(`
-        (function() {
-            // Check if Dark Reader is already loaded
-            if (window.DarkReader) return;
-            
-            // Load Dark Reader from CDN
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
-            script.onload = function() {
-                console.log('Dark Reader loaded successfully');
-                // Store the initial state
-                window.isDarkModeEnabled = false;
-            };
-            script.onerror = function() {
-                console.error('Failed to load Dark Reader');
-            };
-            document.head.appendChild(script);
-        })();
-    `).catch(err => {
-        console.error('Failed to inject Dark Reader script:', err);
-    });
-}
-
-function toggleDarkMode() {
-    mainWindow.webContents.executeJavaScript(`
-        (function() {
-            if (typeof DarkReader === 'undefined') {
-                alert('Dark Reader is not loaded yet. Please try again in a moment.');
-                return false;
-            }
-            
-            if (window.isDarkModeEnabled) {
-                // Disable dark mode
-                DarkReader.disable();
-                window.isDarkModeEnabled = false;
-                console.log('Dark mode disabled');
-                return false;
-            } else {
-                // Enable dark mode with custom settings
-                DarkReader.enable({
-                    brightness: 100,
-                    contrast: 90,
-                    sepia: 10
-                }, {
-                    invert: ['.logo', '.icon', 'img[src*="logo"]'],
-                    css: '',
-                    ignoreInlineStyle: ['.react-datepicker__input-container'],
-                    ignoreImageAnalysis: ['.logo', '.icon']
-                });
-                window.isDarkModeEnabled = true;
-                console.log('Dark mode enabled');
-                return true;
-            }
-        })();
-    `).then(result => {
-        isDarkModeEnabled = result;
-        
-        // Update menu to reflect current state
-        updateMenuDarkModeLabel();
-    }).catch(err => {
-        console.error('Failed to toggle dark mode:', err);
-        dialog.showErrorBox('Dark Mode Error', 'Failed to toggle dark mode. Please try reloading the page.');
-    });
-}
-
-function updateMenuDarkModeLabel() {
+function createMenu() {
     const menuTemplate = [
         {
             label: 'Account',
@@ -306,6 +209,92 @@ function updateMenuDarkModeLabel() {
 
     const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
+}
+
+function initializeDarkReader() {
+    // Inject Dark Reader into the page
+    // Yamada Note: I better use streamed from CDN (Makes it easier if Dark Reader updates dawg)
+    mainWindow.webContents.executeJavaScript(`
+        (function() {
+            // Check if Dark Reader is already loaded
+            if (window.DarkReader) return;
+            
+            // Load Dark Reader from CDN
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
+            script.onload = function() {
+                console.log('Dark Reader loaded successfully');
+                // Store the initial state and apply saved preference
+                window.isDarkModeEnabled = ${isDarkModeEnabled};
+                
+                // Apply dark mode if it was previously enabled
+                if (window.isDarkModeEnabled) {
+                    DarkReader.enable({
+                        brightness: 100,
+                        contrast: 90,
+                        sepia: 10
+                    }, {
+                        invert: ['.logo', '.icon', 'img[src*="logo"]'],
+                        css: '',
+                        ignoreInlineStyle: ['.react-datepicker__input-container'],
+                        ignoreImageAnalysis: ['.logo', '.icon']
+                    });
+                    console.log('Dark mode applied from saved preference');
+                }
+            };
+            script.onerror = function() {
+                console.error('Failed to load Dark Reader');
+            };
+            document.head.appendChild(script);
+        })();
+    `).catch(err => {
+        console.error('Failed to inject Dark Reader script:', err);
+    });
+}
+
+function toggleDarkMode() {
+    mainWindow.webContents.executeJavaScript(`
+        (function() {
+            if (typeof DarkReader === 'undefined') {
+                alert('Dark Reader is not loaded yet. Please try again in a moment.');
+                return false;
+            }
+            
+            if (window.isDarkModeEnabled) {
+                // Disable dark mode
+                DarkReader.disable();
+                window.isDarkModeEnabled = false;
+                console.log('Dark mode disabled');
+                return false;
+            } else {
+                // Enable dark mode with custom settings
+                DarkReader.enable({
+                    brightness: 100,
+                    contrast: 90,
+                    sepia: 10
+                }, {
+                    invert: ['.logo', '.icon', 'img[src*="logo"]'],
+                    css: '',
+                    ignoreInlineStyle: ['.react-datepicker__input-container'],
+                    ignoreImageAnalysis: ['.logo', '.icon']
+                });
+                window.isDarkModeEnabled = true;
+                console.log('Dark mode enabled');
+                return true;
+            }
+        })();
+    `).then(result => {
+        isDarkModeEnabled = result;
+        
+        // Save the preference to file
+        saveConfig();
+        
+        // Update menu to reflect current state
+        createMenu();
+    }).catch(err => {
+        console.error('Failed to toggle dark mode:', err);
+        dialog.showErrorBox('Dark Mode Error', 'Failed to toggle dark mode. Please try reloading the page.');
+    });
 }
 
 function createTray() {
@@ -423,6 +412,8 @@ function showExitAnimation() {
 }
 
 app.whenReady().then(() => {
+    // Load configuration before creating the window
+    loadConfig();
     createWindow();
     createTray();
 });
