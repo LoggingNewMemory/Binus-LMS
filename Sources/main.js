@@ -143,9 +143,9 @@ function createMenu() {
             label: 'Account',
             submenu: [
                 {
-                    label: 'Reset Account',
+                    label: 'Clear Local Account',
                     click: () => {
-                        resetAccount();
+                        ClearAccount();
                     }
                 },
             ]
@@ -340,14 +340,14 @@ function createTray() {
     });
 }
 
-function resetAccount() {
+function ClearAccount() {
     const response = dialog.showMessageBoxSync(mainWindow, {
         type: 'warning',
-        buttons: ['Reset Account', 'Cancel'],
+        buttons: ['Clear', 'Cancel'],
         defaultId: 1,
-        title: 'Reset Account',
-        message: 'Are you sure you want to reset your account?',
-        detail: 'This will delete all locally stored account data including cookies, cache, and session data. You will need to log in again.'
+        title: 'Clear Account',
+        message: 'Are you sure you want to clear your saved local account?',
+        detail: 'You will need to log in again.'
     });
 
     if (response === 0) {
@@ -357,14 +357,14 @@ function resetAccount() {
         }).then(() => {
             dialog.showMessageBox(mainWindow, {
                 type: 'info',
-                title: 'Account Reset',
-                message: 'Account data has been reset successfully!',
-                detail: 'The application will reload now.'
+                title: 'Account Cleared',
+                message: 'Local account cleared sucessfully',
+                detail: 'The application will restart now.'
             }).then(() => {
                 mainWindow.reload();
             });
         }).catch((error) => {
-            dialog.showErrorBox('Error', `Failed to reset account data: ${error.message}`);
+            dialog.showErrorBox('Error', `Failed to clear account data: ${error.message}`);
         });
     }
 }
