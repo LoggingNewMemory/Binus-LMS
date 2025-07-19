@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: [self-hosted, windows]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
           compression-level: 6
 
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
           compression-level: 6
 
   build-macos:
-    runs-on: macos-latest
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
 
   merge-artifacts:
     needs: [build-windows, build-linux, build-macos]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - name: Download Windows Artifacts
         uses: actions/download-artifact@v4
