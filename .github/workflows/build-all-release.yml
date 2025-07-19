@@ -145,9 +145,10 @@ jobs:
           name: BinusLMS-AllPlatforms
           path: release-assets/
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release on External Repository
+        uses: softprops/action-gh-release@v2
         with:
+          repository: LoggingNewMemory/Binus-LMS
           tag_name: ${{ inputs.tag_name || github.run_number }}
           name: ${{ inputs.tag_name || github.run_number }}
           files: |
@@ -160,4 +161,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.YMD_GH_TOKEN }}
