@@ -173,16 +173,6 @@ function createMenu() {
                     click: () => {
                         mainWindow.webContents.toggleDevTools();
                     }
-                },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: isDarkModeEnabled ? 'Disable Dark Mode' : 'Enable Dark Mode',
-                    accelerator: 'CmdOrCtrl+D',
-                    click: () => {
-                        toggleDarkMode();
-                    }
                 }
             ]
         },
@@ -208,6 +198,16 @@ function createMenu() {
                     accelerator: 'CmdOrCtrl+Q',
                     click: () => {
                         showExitAnimation();
+                    }
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: isDarkModeEnabled ? 'Disable Dark Mode' : 'Enable Dark Mode',
+                    accelerator: 'CmdOrCtrl+D',
+                    click: () => {
+                        toggleDarkMode();
                     }
                 }
             ]
