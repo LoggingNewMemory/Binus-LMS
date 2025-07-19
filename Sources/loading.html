@@ -16,35 +16,35 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #F8FAFC;
+            background: #f1f5f9;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-            transition: background-color 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: background-color 0.3s ease;
         }
 
         body.dark-mode {
-            background: #0f172a; /* Dark mode background color */
+            background: #0f172a;
         }
 
         .grid-bg {
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+                linear-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
             background-size: 100px 100px;
             animation: gridMove 20s linear infinite;
-            transition: background-image 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: background-image 0.3s ease;
         }
 
         body.dark-mode .grid-bg {
             background-image: 
                 linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); /* Dark mode grid lines */
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
         }
 
         .loading-container {
@@ -78,34 +78,38 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(45deg, transparent, rgba(129, 140, 248, 0.4), transparent);
             animation: logoShine 4s ease-in-out infinite;
             transform: rotate(45deg);
         }
 
+        body.dark-mode .logo::before {
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+        }
+
         .title {
-            color: #1E293B;
+            color: #0f172a;
             font-size: 24px;
             font-weight: 500;
             margin-bottom: 8px;
             letter-spacing: -0.5px;
-            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: color 0.3s ease;
         }
 
         body.dark-mode .title {
-            color: #f1f5f9; /* Dark mode title color */
+            color: #f1f5f9;
         }
 
         .subtitle {
-            color: rgba(30, 41, 59, 0.6);
+            color: rgba(15, 23, 42, 0.7);
             font-size: 14px;
             font-weight: 400;
             margin-bottom: 40px;
-            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: color 0.3s ease;
         }
 
         body.dark-mode .subtitle {
-            color: rgba(241, 245, 249, 0.6); /* Dark mode subtitle color */
+            color: rgba(241, 245, 249, 0.6);
         }
 
         .progress-ring {
@@ -128,40 +132,40 @@
         }
 
         .progress-ring .bg {
-            stroke: rgba(0, 0, 0, 0.1);
-            transition: stroke 0.3s ease; /* Added transition for smooth dark mode toggle */
+            stroke: rgba(15, 23, 42, 0.1);
+            transition: stroke 0.3s ease;
         }
 
         body.dark-mode .progress-ring .bg {
-            stroke: rgba(255, 255, 255, 0.1); /* Dark mode progress ring background */
+            stroke: rgba(255, 255, 255, 0.1);
         }
 
         .progress-ring .fill {
-            stroke: #667eea;
+            stroke: #6366f1;
             stroke-dasharray: 251;
             stroke-dashoffset: 251;
             animation: progressRing 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
         }
 
         body.dark-mode .progress-ring .fill {
-            stroke: #818cf8; /* Dark mode progress ring fill color */
-            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4)); /* Dark mode progress ring shadow */
+            stroke: #818cf8;
+            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
         }
 
         .loading-text {
-            color: rgba(30, 41, 59, 0.8);
+            color: rgba(15, 23, 42, 0.8);
             font-size: 14px;
             font-weight: 400;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: color 0.3s ease;
         }
 
         body.dark-mode .loading-text {
-            color: rgba(241, 245, 249, 0.8); /* Dark mode loading text color */
+            color: rgba(241, 245, 249, 0.8);
         }
 
         .dots {
@@ -172,14 +176,14 @@
         .dot {
             width: 4px;
             height: 4px;
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(15, 23, 42, 0.6);
             border-radius: 50%;
             animation: dotPulse 1.4s ease-in-out infinite;
-            transition: background 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: background 0.3s ease;
         }
 
         body.dark-mode .dot {
-            background: rgba(241, 245, 249, 0.6); /* Dark mode dot color */
+            background: rgba(241, 245, 249, 0.6);
         }
 
         .dot:nth-child(1) { animation-delay: 0s; }
@@ -190,19 +194,46 @@
             position: absolute;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             animation: orbPulse 4s ease-in-out infinite;
             pointer-events: none;
-            transition: background 0.3s ease; /* Added transition for smooth dark mode toggle */
+            transition: background 0.3s ease;
         }
 
         body.dark-mode .orb {
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%); /* Dark mode orb color */
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%);
         }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(99, 102, 241, 0.7);
+            border-radius: 50%;
+            animation: particleFloat 4s ease-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .particle {
+            background: rgba(129, 140, 248, 0.7);
+        }
+
+        .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { top: 30%; left: 80%; animation-delay: 0.8s; }
+        .particle:nth-child(3) { top: 60%; left: 20%; animation-delay: 1.6s; }
+        .particle:nth-child(4) { top: 70%; left: 90%; animation-delay: 2.4s; }
+        .particle:nth-child(5) { top: 40%; left: 50%; animation-delay: 3.2s; }
 
         @keyframes gridMove {
             0% { transform: translate(0, 0); }
@@ -241,6 +272,29 @@
             50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.2; }
         }
 
+        @keyframes particleFloat {
+            0% { 
+                opacity: 0; 
+                transform: translateY(0) scale(0); 
+            }
+            25% { 
+                opacity: 1; 
+                transform: translateY(-15px) scale(1); 
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-30px) scale(1.2);
+            }
+            75% {
+                opacity: 0.4;
+                transform: translateY(-45px) scale(0.8);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-60px) scale(0); 
+            }
+        }
+
         @media (max-width: 480px) {
             .loading-container {
                 margin: 20px;
@@ -255,6 +309,14 @@
 <body>
     <div class="grid-bg"></div>
     <div class="orb"></div>
+    
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
     
     <div class="loading-container">
         <div class="logo-container">
@@ -282,10 +344,8 @@
     </div>
 
     <script>
-        // JavaScript to toggle dark mode
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            // Save user's preference to localStorage
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
             } else {
@@ -293,7 +353,6 @@
             }
         }
 
-        // Check for saved theme preference on load
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
@@ -301,15 +360,9 @@
             } else if (savedTheme === 'light') {
                 document.body.classList.remove('dark-mode');
             } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                // If no preference, check system preference
                 document.body.classList.add('dark-mode');
             }
         });
-
-        // Optional: Add a button or other element to trigger the toggle
-        // For demonstration, let's add a simple click listener to the body itself
-        // You would typically have a dedicated button for this.
-        // document.body.addEventListener('click', toggleDarkMode); 
     </script>
 </body>
 </html>
