@@ -23,6 +23,11 @@
             justify-content: center;
             overflow: hidden;
             position: relative;
+            transition: background-color 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode {
+            background: #0f172a; /* Dark mode background color */
         }
 
         .grid-bg {
@@ -33,6 +38,13 @@
                 linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
             background-size: 100px 100px;
             animation: gridMove 20s linear infinite;
+            transition: background-image 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); /* Dark mode grid lines */
         }
 
         .loading-container {
@@ -77,6 +89,11 @@
             font-weight: 500;
             margin-bottom: 8px;
             letter-spacing: -0.5px;
+            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .title {
+            color: #f1f5f9; /* Dark mode title color */
         }
 
         .subtitle {
@@ -84,6 +101,11 @@
             font-size: 14px;
             font-weight: 400;
             margin-bottom: 40px;
+            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .subtitle {
+            color: rgba(241, 245, 249, 0.6); /* Dark mode subtitle color */
         }
 
         .progress-ring {
@@ -107,6 +129,11 @@
 
         .progress-ring .bg {
             stroke: rgba(0, 0, 0, 0.1);
+            transition: stroke 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1); /* Dark mode progress ring background */
         }
 
         .progress-ring .fill {
@@ -117,6 +144,11 @@
             filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
         }
 
+        body.dark-mode .progress-ring .fill {
+            stroke: #818cf8; /* Dark mode progress ring fill color */
+            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4)); /* Dark mode progress ring shadow */
+        }
+
         .loading-text {
             color: rgba(30, 41, 59, 0.8);
             font-size: 14px;
@@ -125,6 +157,11 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: color 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .loading-text {
+            color: rgba(241, 245, 249, 0.8); /* Dark mode loading text color */
         }
 
         .dots {
@@ -138,6 +175,11 @@
             background: rgba(30, 41, 59, 0.6);
             border-radius: 50%;
             animation: dotPulse 1.4s ease-in-out infinite;
+            transition: background 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .dot {
+            background: rgba(241, 245, 249, 0.6); /* Dark mode dot color */
         }
 
         .dot:nth-child(1) { animation-delay: 0s; }
@@ -155,6 +197,11 @@
             transform: translate(-50%, -50%);
             animation: orbPulse 4s ease-in-out infinite;
             pointer-events: none;
+            transition: background 0.3s ease; /* Added transition for smooth dark mode toggle */
+        }
+
+        body.dark-mode .orb {
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%); /* Dark mode orb color */
         }
 
         @keyframes gridMove {
@@ -233,5 +280,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // JavaScript to toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            // Save user's preference to localStorage
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check for saved theme preference on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else if (savedTheme === 'light') {
+                document.body.classList.remove('dark-mode');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // If no preference, check system preference
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Optional: Add a button or other element to trigger the toggle
+        // For demonstration, let's add a simple click listener to the body itself
+        // You would typically have a dedicated button for this.
+        // document.body.addEventListener('click', toggleDarkMode); 
+    </script>
 </body>
 </html>

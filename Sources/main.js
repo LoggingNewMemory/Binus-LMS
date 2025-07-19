@@ -72,19 +72,26 @@ function createWindow() {
         height: 400,
         frame: false,
         alwaysOnTop: true,
-        transparent: false, // Changed to false for Linux compatibility
-        backgroundColor: '#ffffff', // Added background color
+        transparent: false,
+        backgroundColor: isDarkModeEnabled ? '#0f172a' : '#ffffff',
         resizable: false,
         webPreferences: {
-            nodeIntegration: false
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
 
     // Center the loading screen
     loadingScreen.center();
 
-    // Load the loading screen HTML
+    // Load the loading screen HTML and pass dark mode state
     loadingScreen.loadFile(path.join(__dirname, 'loading.html'));
+    
+    loadingScreen.webContents.once('did-finish-load', () => {
+        loadingScreen.webContents.executeJavaScript(`
+            document.body.classList.toggle('dark-mode', ${isDarkModeEnabled});
+        `);
+    });
 
     // Load main URL
     mainWindow.loadURL('https://lms.binus.ac.id/lms/dashboard');
@@ -380,10 +387,11 @@ function showExitAnimation() {
         frame: false,
         alwaysOnTop: true,
         transparent: false,
-        backgroundColor: '#F8FAFC',
+        backgroundColor: isDarkModeEnabled ? '#0f172a' : '#F8FAFC',
         resizable: false,
         webPreferences: {
-            nodeIntegration: false
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
 
@@ -392,6 +400,12 @@ function showExitAnimation() {
 
     // Load the exit screen HTML
     exitScreen.loadFile(path.join(__dirname, 'exit.html'));
+    
+    exitScreen.webContents.once('did-finish-load', () => {
+        exitScreen.webContents.executeJavaScript(`
+            document.body.classList.toggle('dark-mode', ${isDarkModeEnabled});
+        `);
+    });
 
     // Show exit screen
     exitScreen.show();
@@ -408,7 +422,7 @@ function showExitAnimation() {
             tray.destroy();
         }
         app.quit();
-    }, 2500); // Wait for animation to complete
+    }, 2500);
 }
 
 app.whenReady().then(() => {

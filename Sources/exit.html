@@ -24,6 +24,11 @@
             overflow: hidden;
             position: relative;
             animation: fadeOut 2s ease-in-out forwards;
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: #0f172a;
         }
 
         .grid-bg {
@@ -34,6 +39,13 @@
                 linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
             background-size: 100px 100px;
             animation: gridFadeOut 2s ease-in-out forwards;
+            transition: background-image 0.3s ease;
+        }
+
+        body.dark-mode .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
         }
 
         .exit-container {
@@ -79,6 +91,11 @@
             margin-bottom: 8px;
             letter-spacing: -0.5px;
             animation: textFadeOut 2s ease-in-out forwards;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .title {
+            color: #f1f5f9;
         }
 
         .subtitle {
@@ -87,6 +104,11 @@
             font-weight: 400;
             margin-bottom: 40px;
             animation: textFadeOut 2s ease-in-out 0.2s forwards;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .subtitle {
+            color: rgba(241, 245, 249, 0.6);
         }
 
         .goodbye-text {
@@ -95,6 +117,11 @@
             font-weight: 400;
             margin-bottom: 16px;
             animation: goodbyeAnimation 2s ease-in-out forwards;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .goodbye-text {
+            color: rgba(241, 245, 249, 0.8);
         }
 
         .progress-ring {
@@ -119,6 +146,11 @@
 
         .progress-ring .bg {
             stroke: rgba(0, 0, 0, 0.1);
+            transition: stroke 0.3s ease;
+        }
+
+        body.dark-mode .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
         }
 
         .progress-ring .fill {
@@ -127,6 +159,11 @@
             stroke-dashoffset: 0;
             animation: progressEmpty 2s ease-in-out forwards;
             filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+        }
+
+        body.dark-mode .progress-ring .fill {
+            stroke: #818cf8;
+            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
         }
 
         .closing-text {
@@ -138,6 +175,11 @@
             justify-content: center;
             gap: 8px;
             animation: closingFade 2s ease-in-out forwards;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .closing-text {
+            color: rgba(241, 245, 249, 0.6);
         }
 
         .dots {
@@ -151,6 +193,11 @@
             background: rgba(30, 41, 59, 0.6);
             border-radius: 50%;
             animation: dotFadeOut 1.4s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .dot {
+            background: rgba(241, 245, 249, 0.6);
         }
 
         .dot:nth-child(1) { animation-delay: 0s; }
@@ -168,6 +215,11 @@
             transform: translate(-50%, -50%);
             animation: orbShrink 2s ease-in-out forwards;
             pointer-events: none;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .orb {
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%);
         }
 
         .particles {
@@ -184,6 +236,11 @@
             background: rgba(102, 126, 234, 0.6);
             border-radius: 50%;
             animation: particleFloat 3s ease-out forwards;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .particle {
+            background: rgba(129, 140, 248, 0.7);
         }
 
         .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0.2s; }
@@ -195,6 +252,16 @@
         @keyframes fadeOut {
             0% { background: #F8FAFC; }
             70% { background: #F8FAFC; }
+            100% { background: transparent; }
+        }
+
+        body.dark-mode {
+            animation: fadeOutDark 2s ease-in-out forwards;
+        }
+
+        @keyframes fadeOutDark {
+            0% { background: #0f172a; }
+            70% { background: #0f172a; }
             100% { background: transparent; }
         }
 
