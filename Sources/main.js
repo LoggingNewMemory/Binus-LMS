@@ -7,7 +7,8 @@ const fs = require('fs');
 let mainWindow;
 let exitScreen;
 let tray;
-let isDarkModeEnabled = false;
+let isDarkModeEnabled = false; // Keep default as light mode
+let darkModeCheckInterval;
 
 // Configuration file path
 const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -118,9 +119,32 @@ function createWindow() {
                 }
             }, 16); // ~60fps
 
-            // Initialize Dark Reader after page loads
-            initializeDarkReader();
+            // Initialize Dark Reader and start monitoring
+            initializeDarkReaderSystem();
         }, 2000); // Show loading screen for 2 seconds minimum
+    });
+
+    // Monitor navigation events to reapply dark mode
+    mainWindow.webContents.on('did-navigate', () => {
+        if (isDarkModeEnabled) {
+            setTimeout(() => {
+                applyDarkMode();
+            }, 500); // Small delay to ensure page is loaded
+        }
+    });
+
+    mainWindow.webContents.on('did-navigate-in-page', () => {
+        if (isDarkModeEnabled) {
+            setTimeout(() => {
+                applyDarkMode();
+            }, 500);
+        }
+    });
+
+    mainWindow.webContents.on('dom-ready', () => {
+        if (isDarkModeEnabled) {
+            applyDarkMode();
+        }
     });
 
     // Handle main window close event - now minimizes to tray instead of closing
@@ -218,9 +242,8 @@ function createMenu() {
     Menu.setApplicationMenu(menu);
 }
 
-function initializeDarkReader() {
-    // Inject Dark Reader into the page
-    // Yamada Note: I better use streamed from CDN (Makes it easier if Dark Reader updates dawg)
+function initializeDarkReaderSystem() {
+    // Inject Dark Reader and set up monitoring
     mainWindow.webContents.executeJavaScript(`
         (function() {
             // Check if Dark Reader is already loaded
@@ -231,11 +254,21 @@ function initializeDarkReader() {
             script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
             script.onload = function() {
                 console.log('Dark Reader loaded successfully');
-                // Store the initial state and apply saved preference
                 window.isDarkModeEnabled = ${isDarkModeEnabled};
                 
                 // Apply dark mode if it was previously enabled
                 if (window.isDarkModeEnabled) {
+                    applyDarkReaderSettings();
+                }
+            };
+            script.onerror = function() {
+                console.error('Failed to load Dark Reader');
+            };
+            document.head.appendChild(script);
+            
+            // Function to apply Dark Reader settings
+            window.applyDarkReaderSettings = function() {
+                if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
                     DarkReader.enable({
                         brightness: 100,
                         contrast: 90,
@@ -246,17 +279,94 @@ function initializeDarkReader() {
                         ignoreInlineStyle: ['.react-datepicker__input-container'],
                         ignoreImageAnalysis: ['.logo', '.icon']
                     });
-                    console.log('Dark mode applied from saved preference');
+                    console.log('Dark mode applied');
                 }
             };
-            script.onerror = function() {
-                console.error('Failed to load Dark Reader');
-            };
-            document.head.appendChild(script);
         })();
     `).catch(err => {
         console.error('Failed to inject Dark Reader script:', err);
     });
+
+    // Start monitoring for dark mode enforcement
+    if (isDarkModeEnabled) {
+        startDarkModeMonitoring();
+    }
+}
+
+function applyDarkMode() {
+    mainWindow.webContents.executeJavaScript(`
+        (async function() {
+            // Ensure Dark Reader is loaded
+            if (typeof DarkReader === 'undefined') {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            
+            if (typeof DarkReader !== 'undefined') {
+                DarkReader.enable({
+                    brightness: 100,
+                    contrast: 90,
+                    sepia: 10
+                }, {
+                    invert: ['.logo', '.icon', 'img[src*="logo"]'],
+                    css: '',
+                    ignoreInlineStyle: ['.react-datepicker__input-container'],
+                    ignoreImageAnalysis: ['.logo', '.icon']
+                });
+                window.isDarkModeEnabled = true;
+                console.log('Dark mode applied to current page');
+            }
+        })();
+    `).catch(err => {
+        console.error('Failed to apply dark mode:', err);
+    });
+}
+
+function startDarkModeMonitoring() {
+    // Clear existing interval if any
+    if (darkModeCheckInterval) {
+        clearInterval(darkModeCheckInterval);
+    }
+    
+    // Check every 2 seconds if dark mode is still applied and reapply if needed
+    darkModeCheckInterval = setInterval(() => {
+        if (isDarkModeEnabled && mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.executeJavaScript(`
+                (function() {
+                    if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
+                        // Check if dark mode is actually applied
+                        if (!DarkReader.isEnabled()) {
+                            console.log('Dark mode not enabled, reapplying...');
+                            DarkReader.enable({
+                                brightness: 100,
+                                contrast: 90,
+                                sepia: 10
+                            }, {
+                                invert: ['.logo', '.icon', 'img[src*="logo"]'],
+                                css: '',
+                                ignoreInlineStyle: ['.react-datepicker__input-container'],
+                                ignoreImageAnalysis: ['.logo', '.icon']
+                            });
+                        }
+                    }
+                })();
+            `).catch(() => {
+                // Ignore errors during monitoring
+            });
+        }
+    }, 2000);
+}
+
+function stopDarkModeMonitoring() {
+    if (darkModeCheckInterval) {
+        clearInterval(darkModeCheckInterval);
+        darkModeCheckInterval = null;
+    }
 }
 
 function toggleDarkMode() {
@@ -300,6 +410,13 @@ function toggleDarkMode() {
         isDarkModeEnabled = result;
         saveConfig();
         createMenu();
+        
+        // Start or stop monitoring based on dark mode state
+        if (isDarkModeEnabled) {
+            startDarkModeMonitoring();
+        } else {
+            stopDarkModeMonitoring();
+        }
     }).catch(err => {
         console.error('Failed to toggle dark mode:', err);
         dialog.showErrorBox('Dark Mode Error', 'Failed to toggle dark mode. Please try reloading the page.');
@@ -382,6 +499,9 @@ function showExitAnimation() {
     // Hide main window
     mainWindow.hide();
     
+    // Stop dark mode monitoring
+    stopDarkModeMonitoring();
+    
     // Create exit screen
     exitScreen = new BrowserWindow({
         width: 500,
@@ -437,6 +557,7 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     // Don't quit on window close, keep running in tray
     // App will only quit when explicitly requested
+    stopDarkModeMonitoring();
 });
 
 app.on('before-quit', (event) => {
