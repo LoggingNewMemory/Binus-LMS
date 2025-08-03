@@ -261,20 +261,27 @@ function initializeDarkReader() {
 
 function toggleDarkMode() {
     mainWindow.webContents.executeJavaScript(`
-        (function() {
+        (async function() {
+            // Load Dark Reader if missing
             if (typeof DarkReader === 'undefined') {
-                alert('Dark Reader is not loaded yet. Please try again in a moment.');
-                return false;
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
             }
             
+            if (typeof DarkReader === 'undefined') {
+                alert('Failed to load Dark Reader. Please try again.');
+                return window.isDarkModeEnabled || false;
+            }
+
             if (window.isDarkModeEnabled) {
-                // Disable dark mode
                 DarkReader.disable();
                 window.isDarkModeEnabled = false;
-                console.log('Dark mode disabled');
-                return false;
             } else {
-                // Enable dark mode with custom settings
                 DarkReader.enable({
                     brightness: 100,
                     contrast: 90,
@@ -286,17 +293,12 @@ function toggleDarkMode() {
                     ignoreImageAnalysis: ['.logo', '.icon']
                 });
                 window.isDarkModeEnabled = true;
-                console.log('Dark mode enabled');
-                return true;
             }
+            return window.isDarkModeEnabled;
         })();
     `).then(result => {
         isDarkModeEnabled = result;
-        
-        // Save the preference to file
         saveConfig();
-        
-        // Update menu to reflect current state
         createMenu();
     }).catch(err => {
         console.error('Failed to toggle dark mode:', err);
