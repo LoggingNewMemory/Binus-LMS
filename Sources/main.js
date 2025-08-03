@@ -589,9 +589,9 @@ if (!gotTheLock) {
     });
 }
 
-// With 1.2.0, I Don't want to work with a fckin Digital Business Ahh Student
-// I rather work with my Lab or my own Community
-// That nigga literally think this techincal testing is some kind of romantic ahh novel
-// Nigga you make me hate Digital Business Again dawg +_+
-
-// Update: I forgive You Shanna, but I... I don't know, I lost my feelings for you, I'm Sorry
+// 1.4.0 Version comes with a big hope
+// This should be the last release and I don't regret it
+// This project start with Shanna, but the end is only me and KanaDev_IS
+// The truth is Windows version is not really tested (Run out of testers)
+// With this... I completely forget about her
+// I don't want to fall in love anymore. I accept my destiny to pledge to technologies and innovation
