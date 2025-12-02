@@ -2,6 +2,7 @@ const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+// Optimizations for slow internet
 app.commandLine.appendSwitch('max-connections-per-server', '64');
 app.commandLine.appendSwitch('max-persistence-network-requests', '64');
 app.commandLine.appendSwitch('enable-quic');
@@ -185,17 +186,7 @@ function createWindow() {
 
 function createMenu() {
     const menuTemplate = [
-        {
-            label: 'Account',
-            submenu: [
-                {
-                    label: 'Clear Local Account',
-                    click: () => {
-                        ClearAccount();
-                    }
-                },
-            ]
-        },
+        // "Account" menu removed
         {
             label: 'Web Controls',
             submenu: [
@@ -218,13 +209,7 @@ function createMenu() {
         {
             label: 'App Controls',
             submenu: [
-                {
-                    label: 'Minimize',
-                    accelerator: 'CmdOrCtrl+M',
-                    click: () => {
-                        mainWindow.minimize();
-                    }
-                },
+                // "Minimize" removed
                 {
                     label: 'Hide to System Tray',
                     accelerator: 'CmdOrCtrl+H',
@@ -432,34 +417,6 @@ function createTray() {
             mainWindow.focus();
         }
     });
-}
-
-function ClearAccount() {
-    const response = dialog.showMessageBoxSync(mainWindow, {
-        type: 'warning',
-        buttons: ['Clear', 'Cancel'],
-        defaultId: 1,
-        title: 'Clear Account',
-        message: 'Are you sure you want to clear your saved local account?',
-        detail: 'You will need to log in again.'
-    });
-
-    if (response === 0) {
-        session.fromPartition('persist:main-session').clearStorageData({
-            storages: ['cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers', 'cachestorage']
-        }).then(() => {
-            dialog.showMessageBox(mainWindow, {
-                type: 'info',
-                title: 'Account Cleared',
-                message: 'Local account cleared sucessfully',
-                detail: 'The application will restart now.'
-            }).then(() => {
-                mainWindow.reload();
-            });
-        }).catch((error) => {
-            dialog.showErrorBox('Error', `Failed to clear account data: ${error.message}`);
-        });
-    }
 }
 
 function showExitAnimation() {
