@@ -229,6 +229,58 @@ function createMenu() {
                     }
                 }
             ]
+        },
+        {
+            label: 'Advanced',
+            submenu: [
+                {
+                    label: 'Clear Cache',
+                    click: async () => {
+                        if (mainWindow) {
+                            await mainWindow.webContents.session.clearCache();
+                            dialog.showMessageBox(mainWindow, {
+                                type: 'info',
+                                title: 'Cache Cleared',
+                                message: 'The cache has been successfully cleared.',
+                                buttons: ['OK']
+                            }).then(() => {
+                                mainWindow.reload();
+                            });
+                        }
+                    }
+                },
+                {
+                    label: 'Reset All Data',
+                    click: async () => {
+                        const { response } = await dialog.showMessageBox(mainWindow, {
+                            type: 'warning',
+                            buttons: ['Cancel', 'Reset'],
+                            title: 'Reset All Data',
+                            message: 'This will clear all cache, cookies, local storage, and reset settings. The app will restart.',
+                            defaultId: 1,
+                            cancelId: 0
+                        });
+
+                        if (response === 1) {
+                            if (mainWindow) {
+                                await mainWindow.webContents.session.clearCache();
+                                await mainWindow.webContents.session.clearStorageData();
+                            }
+                            
+                            try {
+                                if (fs.existsSync(configPath)) {
+                                    fs.unlinkSync(configPath);
+                                }
+                            } catch (err) {
+                                console.error(err);
+                            }
+
+                            app.relaunch();
+                            app.exit();
+                        }
+                    }
+                }
+            ]
         }
     ];
 
