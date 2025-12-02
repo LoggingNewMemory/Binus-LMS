@@ -37,23 +37,6 @@
             background: #121212;
         }
 
-        .grid-bg {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-            background-size: 100px 100px;
-            animation: gridFadeOut 2s ease-in-out forwards;
-            transition: background-image 0.3s ease;
-        }
-
-        html.dark-mode .grid-bg {
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-        }
-
         .exit-container {
             text-align: center;
             position: relative;
@@ -94,7 +77,6 @@
         }
 
         html.dark-mode .logo::before {
-            /* Light Purple Shine */
             background: linear-gradient(45deg, transparent, rgba(179, 136, 255, 0.4), transparent);
         }
 
@@ -268,12 +250,6 @@
             100% { background: transparent; }
         }
 
-        @keyframes gridFadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 0.3; }
-            100% { opacity: 0; }
-        }
-
         @keyframes exitSequence {
             0% { 
                 opacity: 1; 
@@ -435,7 +411,6 @@
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
     <div class="orb"></div>
     
     <div class="particles">

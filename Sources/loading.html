@@ -36,23 +36,6 @@
             background: #121212;
         }
 
-        .grid-bg {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-            background-size: 100px 100px;
-            animation: gridMove 20s linear infinite;
-            transition: background-image 0.3s ease;
-        }
-
-        html.dark-mode .grid-bg {
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-        }
-
         .loading-container {
             text-align: center;
             position: relative;
@@ -93,7 +76,6 @@
         }
 
         html.dark-mode .logo::before {
-            /* Lighter Purple Shine for Dark Mode */
             background: linear-gradient(45deg, transparent, rgba(179, 136, 255, 0.3), transparent);
         }
 
@@ -138,7 +120,7 @@
 
         .progress-bar {
             position: absolute;
-            /* Material Deep Purple A200/A400 range */
+            /* Material Deep Purple */
             background-color: #7C4DFF;
             height: 100%;
             width: 100%;
@@ -147,7 +129,6 @@
         }
 
         html.dark-mode .progress-bar {
-            /* Light Deep Purple for Dark Mode */
             background-color: #B388FF;
             filter: drop-shadow(0 0 8px rgba(179, 136, 255, 0.3));
         }
@@ -236,11 +217,6 @@
         .particle:nth-child(4) { top: 70%; left: 90%; animation-delay: 2.4s; }
         .particle:nth-child(5) { top: 40%; left: 50%; animation-delay: 3.2s; }
 
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(100px, 100px); }
-        }
-
         @keyframes cardFade {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
@@ -308,7 +284,6 @@
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
     <div class="orb"></div>
     
     <div class="particles">
