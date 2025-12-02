@@ -2,7 +2,6 @@ const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-// Optimizations for slow internet
 app.commandLine.appendSwitch('max-connections-per-server', '64');
 app.commandLine.appendSwitch('max-persistence-network-requests', '64');
 app.commandLine.appendSwitch('enable-quic');
@@ -132,12 +131,9 @@ function createWindow() {
     });
 
     loadingScreen.center();
-    loadingScreen.loadFile(path.join(__dirname, 'loading.html'));
     
-    loadingScreen.webContents.once('did-finish-load', () => {
-        loadingScreen.webContents.executeJavaScript(`
-            document.body.classList.toggle('dark-mode', ${isDarkModeEnabled});
-        `);
+    loadingScreen.loadFile(path.join(__dirname, 'loading.html'), {
+        query: { "dark": isDarkModeEnabled ? "true" : "false" }
     });
 
     mainWindow.loadURL('https://lms.binus.ac.id/lms/dashboard');
@@ -186,7 +182,6 @@ function createWindow() {
 
 function createMenu() {
     const menuTemplate = [
-        // "Account" menu removed
         {
             label: 'Web Controls',
             submenu: [
@@ -209,7 +204,6 @@ function createMenu() {
         {
             label: 'App Controls',
             submenu: [
-                // "Minimize" removed
                 {
                     label: 'Hide to System Tray',
                     accelerator: 'CmdOrCtrl+H',
@@ -438,12 +432,9 @@ function showExitAnimation() {
     });
 
     exitScreen.center();
-    exitScreen.loadFile(path.join(__dirname, 'exit.html'));
     
-    exitScreen.webContents.once('did-finish-load', () => {
-        exitScreen.webContents.executeJavaScript(`
-            document.body.classList.toggle('dark-mode', ${isDarkModeEnabled});
-        `);
+    exitScreen.loadFile(path.join(__dirname, 'exit.html'), {
+        query: { "dark": isDarkModeEnabled ? "true" : "false" }
     });
 
     exitScreen.show();

@@ -7,6 +7,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        const isDark = new URLSearchParams(window.location.search).get('dark') === 'true';
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -26,7 +32,7 @@
             transition: background-color 0.3s ease;
         }
 
-        body.dark-mode {
+        html.dark-mode body {
             background: #121212;
         }
 
@@ -41,7 +47,7 @@
             transition: background-image 0.3s ease;
         }
 
-        body.dark-mode .grid-bg {
+        html.dark-mode .grid-bg {
             background-image: 
                 linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
@@ -85,7 +91,7 @@
             transform: rotate(45deg);
         }
 
-        body.dark-mode .logo::before {
+        html.dark-mode .logo::before {
             background: linear-gradient(45deg, transparent, rgba(144, 202, 249, 0.3), transparent);
         }
 
@@ -98,7 +104,7 @@
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .title {
+        html.dark-mode .title {
             color: #eeeeee;
         }
 
@@ -110,7 +116,7 @@
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .subtitle {
+        html.dark-mode .subtitle {
             color: rgba(255, 255, 255, 0.6);
         }
 
@@ -124,7 +130,7 @@
             overflow: hidden;
         }
 
-        body.dark-mode .progress-bar-container {
+        html.dark-mode .progress-bar-container {
             background: rgba(255, 255, 255, 0.12);
         }
 
@@ -137,7 +143,7 @@
             animation: materialIndeterminate 2s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
         }
 
-        body.dark-mode .progress-bar {
+        html.dark-mode .progress-bar {
             background-color: #90CAF9;
             filter: drop-shadow(0 0 8px rgba(144, 202, 249, 0.3));
         }
@@ -153,7 +159,7 @@
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .loading-text {
+        html.dark-mode .loading-text {
             color: rgba(255, 255, 255, 0.87);
         }
 
@@ -171,7 +177,7 @@
             transition: background 0.3s ease;
         }
 
-        body.dark-mode .dot {
+        html.dark-mode .dot {
             background: rgba(255, 255, 255, 0.6);
         }
 
@@ -193,7 +199,7 @@
             transition: background 0.3s ease;
         }
 
-        body.dark-mode .orb {
+        html.dark-mode .orb {
             background: radial-gradient(circle, rgba(144, 202, 249, 0.1) 0%, transparent 70%);
         }
 
@@ -214,7 +220,7 @@
             transition: background 0.3s ease;
         }
 
-        body.dark-mode .particle {
+        html.dark-mode .particle {
             background: rgba(144, 202, 249, 0.6);
         }
 
@@ -330,23 +336,12 @@
     </div>
 
     <script>
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
+                document.documentElement.classList.add('dark-mode');
             } else if (savedTheme === 'light') {
-                document.body.classList.remove('dark-mode');
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.body.classList.add('dark-mode');
+                document.documentElement.classList.remove('dark-mode');
             }
         });
     </script>
