@@ -24,6 +24,7 @@
     "main.js",
     "loading.html",
     "exit.html",
+    "settings.html",
     "logo/*"
     ],
     "linux": {
