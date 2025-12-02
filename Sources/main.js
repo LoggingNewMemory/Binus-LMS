@@ -21,11 +21,15 @@ let isDarkModeEnabled = false;
 let darkModeCheckInterval;
 let localDarkReaderScript = null;
 
+// DEFINING DEFAULTS
+const DEFAULT_LOADING_TEXT = "Welcome to LMS, Focus on Your Task";
+const DEFAULT_EXIT_TEXT = "Get Some Rest, Good Work!";
+
 let customStrings = {
     title: "BINUS LMS",
     subtitle: "Learning Management System",
-    loadingText: "Loading",
-    exitText: "Thank you for using BINUS LMS"
+    loadingText: DEFAULT_LOADING_TEXT,
+    exitText: DEFAULT_EXIT_TEXT
 };
 
 const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -150,7 +154,21 @@ function openSettingsWindow() {
 }
 
 ipcMain.on('save-custom-strings', (event, newStrings) => {
-    customStrings = { ...customStrings, ...newStrings };
+    // Logic: If the string is empty or just whitespace, revert to DEFAULT constant.
+    const updatedLoading = (!newStrings.loadingText || newStrings.loadingText.trim() === '') 
+        ? DEFAULT_LOADING_TEXT 
+        : newStrings.loadingText;
+
+    const updatedExit = (!newStrings.exitText || newStrings.exitText.trim() === '') 
+        ? DEFAULT_EXIT_TEXT 
+        : newStrings.exitText;
+
+    customStrings = { 
+        ...customStrings, 
+        loadingText: updatedLoading,
+        exitText: updatedExit
+    };
+
     saveConfig();
     if (settingsWindow) {
         settingsWindow.close();
