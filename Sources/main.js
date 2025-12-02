@@ -56,6 +56,29 @@ function saveConfig() {
     }
 }
 
+// --- NEW: Global Handler for ANY web content created (popups, links, etc.) ---
+app.on('web-contents-created', (event, contents) => {
+    // Determine if this is a window we should manage
+    if (contents.getType() === 'window') {
+        
+        // Apply on navigation
+        contents.on('did-navigate', () => {
+            if (isDarkModeEnabled) applyDarkMode(contents);
+        });
+
+        // Apply on in-page navigation (SPA)
+        contents.on('did-navigate-in-page', () => {
+            if (isDarkModeEnabled) applyDarkMode(contents);
+        });
+        
+        // Apply when DOM is ready (covers popups that might not trigger navigate)
+        contents.on('dom-ready', () => {
+            if (isDarkModeEnabled) applyDarkMode(contents);
+        });
+    }
+});
+// -----------------------------------------------------------------------------
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -122,23 +145,14 @@ function createWindow() {
         }, 16);
 
         if (isDarkModeEnabled) {
-            applyDarkMode();
+            applyDarkMode(mainWindow.webContents);
         }
     };
 
     mainWindow.webContents.once('dom-ready', showMain);
 
-    mainWindow.webContents.on('did-navigate', () => {
-        if (isDarkModeEnabled) {
-            applyDarkMode();
-        }
-    });
-
-    mainWindow.webContents.on('did-navigate-in-page', () => {
-        if (isDarkModeEnabled) {
-            applyDarkMode();
-        }
-    });
+    // Note: The global 'web-contents-created' now handles the navigation events 
+    // for mainWindow as well, so we don't need to duplicate listeners here.
 
     mainWindow.on('close', (event) => {
         event.preventDefault();
@@ -229,17 +243,24 @@ function createMenu() {
 }
 
 function initializeDarkReaderSystem() {
-    applyDarkMode();
+    // Initial application is handled by window creation events
     if (isDarkModeEnabled) {
         startDarkModeMonitoring();
     }
 }
 
-function applyDarkMode() {
+// UPDATED: Now accepts a webContents argument to apply to ANY window
+function applyDarkMode(targetContents) {
+    if (!targetContents || targetContents.isDestroyed()) return;
+
+    // Filter out internal application screens (loading.html, exit.html)
+    const url = targetContents.getURL();
+    if (url.includes('loading.html') || url.includes('exit.html')) return;
+
     if (localDarkReaderScript) {
-        mainWindow.webContents.executeJavaScript(localDarkReaderScript)
+        targetContents.executeJavaScript(localDarkReaderScript)
             .then(() => {
-                mainWindow.webContents.executeJavaScript(`
+                targetContents.executeJavaScript(`
                     if (typeof DarkReader !== 'undefined') {
                         DarkReader.enable({
                             brightness: 100,
@@ -257,7 +278,7 @@ function applyDarkMode() {
             })
             .catch(err => console.error(err));
     } else {
-        mainWindow.webContents.executeJavaScript(`
+        targetContents.executeJavaScript(`
             (async function() {
                 if (typeof DarkReader === 'undefined') {
                     await new Promise((resolve, reject) => {
@@ -287,32 +308,50 @@ function applyDarkMode() {
     }
 }
 
+// UPDATED: Disable function for a specific webContents
+function disableDarkModeFor(targetContents) {
+    if (!targetContents || targetContents.isDestroyed()) return;
+    
+    targetContents.executeJavaScript(`
+        if (typeof DarkReader !== 'undefined') {
+            DarkReader.disable();
+            window.isDarkModeEnabled = false;
+        }
+    `).catch(() => {});
+}
+
 function startDarkModeMonitoring() {
     if (darkModeCheckInterval) {
         clearInterval(darkModeCheckInterval);
     }
     
     darkModeCheckInterval = setInterval(() => {
-        if (isDarkModeEnabled && mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.executeJavaScript(`
-                (function() {
-                    if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
-                        if (!DarkReader.isEnabled()) {
-                            DarkReader.enable({
-                                brightness: 100,
-                                contrast: 90,
-                                sepia: 10
-                            }, {
-                                invert: ['.logo', '.icon', 'img[src*="logo"]'],
-                                css: '',
-                                ignoreInlineStyle: ['.react-datepicker__input-container'],
-                                ignoreImageAnalysis: ['.logo', '.icon']
-                            });
+        // Iterate over ALL open windows to check dark mode status
+        BrowserWindow.getAllWindows().forEach(win => {
+            if (isDarkModeEnabled && win && !win.isDestroyed()) {
+                 const url = win.webContents.getURL();
+                 if (url.includes('loading.html') || url.includes('exit.html')) return;
+
+                win.webContents.executeJavaScript(`
+                    (function() {
+                        if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
+                            if (!DarkReader.isEnabled()) {
+                                DarkReader.enable({
+                                    brightness: 100,
+                                    contrast: 90,
+                                    sepia: 10
+                                }, {
+                                    invert: ['.logo', '.icon', 'img[src*="logo"]'],
+                                    css: '',
+                                    ignoreInlineStyle: ['.react-datepicker__input-container'],
+                                    ignoreImageAnalysis: ['.logo', '.icon']
+                                });
+                            }
                         }
-                    }
-                })();
-            `).catch(() => {});
-        }
+                    })();
+                `).catch(() => {});
+            }
+        });
     }, 3000);
 }
 
@@ -323,51 +362,26 @@ function stopDarkModeMonitoring() {
     }
 }
 
+// UPDATED: Toggles state and updates ALL windows
 function toggleDarkMode() {
-    mainWindow.webContents.executeJavaScript(`
-        (async function() {
-             if (typeof DarkReader === 'undefined') {
-                 // Try loading if missing
-             }
-             if (window.isDarkModeEnabled) {
-                 if (typeof DarkReader !== 'undefined') DarkReader.disable();
-                 window.isDarkModeEnabled = false;
-             } else {
-                 if (typeof DarkReader !== 'undefined') {
-                     DarkReader.enable({
-                        brightness: 100,
-                        contrast: 90,
-                        sepia: 10
-                    }, {
-                        invert: ['.logo', '.icon', 'img[src*="logo"]'],
-                        css: '',
-                        ignoreInlineStyle: ['.react-datepicker__input-container'],
-                        ignoreImageAnalysis: ['.logo', '.icon']
-                    });
-                 }
-                 window.isDarkModeEnabled = true;
-             }
-             return window.isDarkModeEnabled;
-        })();
-    `).then(result => {
-        isDarkModeEnabled = result;
-        if (isDarkModeEnabled && !result) { 
-             applyDarkMode(); 
-             isDarkModeEnabled = true;
-        }
-        
-        saveConfig();
-        createMenu();
-        
+    isDarkModeEnabled = !isDarkModeEnabled;
+    saveConfig();
+    createMenu();
+    
+    const windows = BrowserWindow.getAllWindows();
+    windows.forEach(win => {
         if (isDarkModeEnabled) {
-            startDarkModeMonitoring();
+            applyDarkMode(win.webContents);
         } else {
-            stopDarkModeMonitoring();
+            disableDarkModeFor(win.webContents);
         }
-    }).catch(err => {
-        console.error(err);
-        dialog.showErrorBox('Dark Mode Error', 'Failed to toggle dark mode.');
     });
+    
+    if (isDarkModeEnabled) {
+        startDarkModeMonitoring();
+    } else {
+        stopDarkModeMonitoring();
+    }
 }
 
 function createTray() {
