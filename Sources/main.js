@@ -4,16 +4,11 @@ const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-// --- PERFORMANCE OPTIMIZATION START ---
-// Increase parallel connections (Parallel Download for resources)
 app.commandLine.appendSwitch('max-connections-per-server', '32');
 app.commandLine.appendSwitch('max-persistence-network-requests', '32');
-// Enable QUIC and Parallel Downloading features
 app.commandLine.appendSwitch('enable-quic');
 app.commandLine.appendSwitch('enable-features', 'ParallelDownloading,NetworkService,NetworkServiceInProcess');
-// Force aggressive caching (Set to 512MB)
 app.commandLine.appendSwitch('disk-cache-size', '536870912');
-// --- PERFORMANCE OPTIMIZATION END ---
 
 let mainWindow;
 let exitScreen;
