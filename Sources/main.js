@@ -2,12 +2,16 @@ const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-app.commandLine.appendSwitch('max-connections-per-server', '32');
-app.commandLine.appendSwitch('max-persistence-network-requests', '32');
+app.commandLine.appendSwitch('max-connections-per-server', '64');
+app.commandLine.appendSwitch('max-persistence-network-requests', '64');
 app.commandLine.appendSwitch('enable-quic');
-app.commandLine.appendSwitch('enable-features', 'ParallelDownloading,NetworkService,NetworkServiceInProcess');
-app.commandLine.appendSwitch('disk-cache-size', '1073741824');
+app.commandLine.appendSwitch('enable-tcp-fast-open');
+app.commandLine.appendSwitch('enable-features', 'ParallelDownloading,NetworkService,NetworkServiceInProcess,VaapiVideoDecoder,CanvasOopRasterization');
+app.commandLine.appendSwitch('disk-cache-size', '2147483648');
 app.commandLine.appendSwitch('disable-http-cache', 'false');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
 
 let mainWindow;
 let exitScreen;
@@ -56,28 +60,40 @@ function saveConfig() {
     }
 }
 
-// --- NEW: Global Handler for ANY web content created (popups, links, etc.) ---
 app.on('web-contents-created', (event, contents) => {
-    // Determine if this is a window we should manage
     if (contents.getType() === 'window') {
         
-        // Apply on navigation
         contents.on('did-navigate', () => {
             if (isDarkModeEnabled) applyDarkMode(contents);
         });
 
-        // Apply on in-page navigation (SPA)
         contents.on('did-navigate-in-page', () => {
             if (isDarkModeEnabled) applyDarkMode(contents);
         });
         
-        // Apply when DOM is ready (covers popups that might not trigger navigate)
         contents.on('dom-ready', () => {
             if (isDarkModeEnabled) applyDarkMode(contents);
         });
     }
 });
-// -----------------------------------------------------------------------------
+
+function setupAggressiveCaching() {
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+        const responseHeaders = Object.assign({}, details.responseHeaders);
+        
+        if (details.resourceType === 'image' || 
+            details.resourceType === 'stylesheet' || 
+            details.resourceType === 'script' || 
+            details.resourceType === 'font') {
+            
+            responseHeaders['cache-control'] = ['public, max-age=2592000'];
+            delete responseHeaders['expires'];
+            delete responseHeaders['pragma'];
+        }
+
+        callback({ responseHeaders });
+    });
+}
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -91,12 +107,14 @@ function createWindow() {
             contextIsolation: true,
             partition: 'persist:main-session',
             backgroundThrottling: false,
-            autoplayPolicy: 'no-user-gesture-required'
+            autoplayPolicy: 'no-user-gesture-required',
+            devTools: true
         },
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
     createMenu();
+    setupAggressiveCaching();
 
     const loadingScreen = new BrowserWindow({
         width: 500,
@@ -150,9 +168,6 @@ function createWindow() {
     };
 
     mainWindow.webContents.once('dom-ready', showMain);
-
-    // Note: The global 'web-contents-created' now handles the navigation events 
-    // for mainWindow as well, so we don't need to duplicate listeners here.
 
     mainWindow.on('close', (event) => {
         event.preventDefault();
@@ -243,17 +258,14 @@ function createMenu() {
 }
 
 function initializeDarkReaderSystem() {
-    // Initial application is handled by window creation events
     if (isDarkModeEnabled) {
         startDarkModeMonitoring();
     }
 }
 
-// UPDATED: Now accepts a webContents argument to apply to ANY window
 function applyDarkMode(targetContents) {
     if (!targetContents || targetContents.isDestroyed()) return;
 
-    // Filter out internal application screens (loading.html, exit.html)
     const url = targetContents.getURL();
     if (url.includes('loading.html') || url.includes('exit.html')) return;
 
@@ -308,7 +320,6 @@ function applyDarkMode(targetContents) {
     }
 }
 
-// UPDATED: Disable function for a specific webContents
 function disableDarkModeFor(targetContents) {
     if (!targetContents || targetContents.isDestroyed()) return;
     
@@ -326,7 +337,6 @@ function startDarkModeMonitoring() {
     }
     
     darkModeCheckInterval = setInterval(() => {
-        // Iterate over ALL open windows to check dark mode status
         BrowserWindow.getAllWindows().forEach(win => {
             if (isDarkModeEnabled && win && !win.isDestroyed()) {
                  const url = win.webContents.getURL();
@@ -352,7 +362,7 @@ function startDarkModeMonitoring() {
                 `).catch(() => {});
             }
         });
-    }, 3000);
+    }, 5000);
 }
 
 function stopDarkModeMonitoring() {
@@ -362,7 +372,6 @@ function stopDarkModeMonitoring() {
     }
 }
 
-// UPDATED: Toggles state and updates ALL windows
 function toggleDarkMode() {
     isDarkModeEnabled = !isDarkModeEnabled;
     saveConfig();
