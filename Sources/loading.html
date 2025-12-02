@@ -22,7 +22,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #fafafa;
+            background: #ffffff;
             height: 100vh;
             display: flex;
             align-items: center;
@@ -69,14 +69,13 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            /* Purple Shine */
-            background: linear-gradient(45deg, transparent, rgba(124, 77, 255, 0.3), transparent);
+            background: linear-gradient(45deg, transparent, rgba(41, 182, 246, 0.4), transparent);
             animation: logoShine 4s ease-in-out infinite;
             transform: rotate(45deg);
         }
 
         html.dark-mode .logo::before {
-            background: linear-gradient(45deg, transparent, rgba(179, 136, 255, 0.3), transparent);
+            background: linear-gradient(45deg, transparent, rgba(79, 195, 247, 0.4), transparent);
         }
 
         .title {
@@ -107,7 +106,7 @@
         .progress-bar-container {
             width: 240px;
             height: 4px;
-            background: rgba(0, 0, 0, 0.08);
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
             margin: 0 auto 24px;
             position: relative;
@@ -120,8 +119,7 @@
 
         .progress-bar {
             position: absolute;
-            /* Material Deep Purple */
-            background-color: #7C4DFF;
+            background-color: #29B6F6;
             height: 100%;
             width: 100%;
             transform-origin: left center;
@@ -129,8 +127,8 @@
         }
 
         html.dark-mode .progress-bar {
-            background-color: #B388FF;
-            filter: drop-shadow(0 0 8px rgba(179, 136, 255, 0.3));
+            background-color: #4FC3F7;
+            filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3));
         }
 
         .loading-text {
@@ -174,8 +172,7 @@
             position: absolute;
             width: 300px;
             height: 300px;
-            /* Purple Orb Gradient */
-            background: radial-gradient(circle, rgba(124, 77, 255, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(251, 192, 45, 0.15) 0%, transparent 70%);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -186,7 +183,7 @@
         }
 
         html.dark-mode .orb {
-            background: radial-gradient(circle, rgba(179, 136, 255, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 241, 118, 0.1) 0%, transparent 70%);
         }
 
         .particles {
@@ -200,15 +197,22 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            /* Purple Particles */
-            background: rgba(124, 77, 255, 0.6);
+            background: rgba(41, 182, 246, 0.6);
             border-radius: 50%;
             animation: particleFloat 4s ease-out infinite;
             transition: background 0.3s ease;
         }
 
+        .particle:nth-child(even) {
+            background: rgba(253, 216, 53, 0.7);
+        }
+
         html.dark-mode .particle {
-            background: rgba(179, 136, 255, 0.6);
+            background: rgba(79, 195, 247, 0.6);
+        }
+
+        html.dark-mode .particle:nth-child(even) {
+            background: rgba(255, 241, 118, 0.7);
         }
 
         .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
