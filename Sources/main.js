@@ -4,16 +4,25 @@ const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+// --- PERFORMANCE OPTIMIZATION START ---
+// Increase parallel connections (Parallel Download for resources)
+app.commandLine.appendSwitch('max-connections-per-server', '32');
+app.commandLine.appendSwitch('max-persistence-network-requests', '32');
+// Enable QUIC and Parallel Downloading features
+app.commandLine.appendSwitch('enable-quic');
+app.commandLine.appendSwitch('enable-features', 'ParallelDownloading,NetworkService,NetworkServiceInProcess');
+// Force aggressive caching (Set to 512MB)
+app.commandLine.appendSwitch('disk-cache-size', '536870912');
+// --- PERFORMANCE OPTIMIZATION END ---
+
 let mainWindow;
 let exitScreen;
 let tray;
-let isDarkModeEnabled = false; // Keep default as light mode
+let isDarkModeEnabled = false; 
 let darkModeCheckInterval;
 
-// Configuration file path
 const configPath = path.join(app.getPath('userData'), 'config.json');
 
-// Load configuration from file
 function loadConfig() {
     try {
         if (fs.existsSync(configPath)) {
@@ -30,14 +39,12 @@ function loadConfig() {
     }
 }
 
-// Save configuration to file
 function saveConfig() {
     try {
         const config = {
             isDarkModeEnabled: isDarkModeEnabled
         };
         
-        // Ensure the directory exists
         const configDir = path.dirname(configPath);
         if (!fs.existsSync(configDir)) {
             fs.mkdirSync(configDir, { recursive: true });
@@ -54,20 +61,20 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
-        autoHideMenuBar: false, // Show menu bar
-        show: false, // Don't show window initially
+        autoHideMenuBar: false,
+        show: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            partition: 'persist:main-session' 
+            partition: 'persist:main-session',
+            // Allow background processing for faster loads
+            backgroundThrottling: false 
         },
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
-    // Menu Bar - Initialize with current dark mode state
     createMenu();
 
-    // Create loading screen with Linux-compatible settings
     const loadingScreen = new BrowserWindow({
         width: 500,
         height: 400,
@@ -82,10 +89,8 @@ function createWindow() {
         }
     });
 
-    // Center the loading screen
     loadingScreen.center();
 
-    // Load the loading screen HTML and pass dark mode state
     loadingScreen.loadFile(path.join(__dirname, 'loading.html'));
     
     loadingScreen.webContents.once('did-finish-load', () => {
@@ -94,19 +99,15 @@ function createWindow() {
         `);
     });
 
-    // Load main URL
     mainWindow.loadURL('https://lms.binus.ac.id/lms/dashboard');
 
-    // Show loading screen
     loadingScreen.show();
 
-    // When main window is ready, show it and hide loading screen
     mainWindow.once('ready-to-show', () => {
         setTimeout(() => {
             loadingScreen.close();
             mainWindow.show();
             
-            // Fade in animation for main window
             mainWindow.setOpacity(0);
             mainWindow.show();
             
@@ -117,19 +118,17 @@ function createWindow() {
                 if (opacity >= 1) {
                     clearInterval(fadeIn);
                 }
-            }, 16); // ~60fps
+            }, 16); 
 
-            // Initialize Dark Reader and start monitoring
             initializeDarkReaderSystem();
-        }, 2000); // Show loading screen for 2 seconds minimum
+        }, 2000); 
     });
 
-    // Monitor navigation events to reapply dark mode
     mainWindow.webContents.on('did-navigate', () => {
         if (isDarkModeEnabled) {
             setTimeout(() => {
                 applyDarkMode();
-            }, 500); // Small delay to ensure page is loaded
+            }, 500); 
         }
     });
 
@@ -147,12 +146,10 @@ function createWindow() {
         }
     });
 
-    // Handle main window close event - now minimizes to tray instead of closing
     mainWindow.on('close', (event) => {
         event.preventDefault();
         mainWindow.hide();
         
-        // Show notification that app is running in tray
         if (tray) {
             tray.displayBalloon({
                 iconType: 'info',
@@ -162,9 +159,7 @@ function createWindow() {
         }
     });
 
-    // Handle loading screen close
     loadingScreen.on('closed', () => {
-        // Loading screen closed
     });
 }
 
@@ -243,20 +238,16 @@ function createMenu() {
 }
 
 function initializeDarkReaderSystem() {
-    // Inject Dark Reader and set up monitoring
     mainWindow.webContents.executeJavaScript(`
         (function() {
-            // Check if Dark Reader is already loaded
             if (window.DarkReader) return;
             
-            // Load Dark Reader from CDN
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/darkreader@4.9.109/darkreader.min.js';
             script.onload = function() {
                 console.log('Dark Reader loaded successfully');
                 window.isDarkModeEnabled = ${isDarkModeEnabled};
                 
-                // Apply dark mode if it was previously enabled
                 if (window.isDarkModeEnabled) {
                     applyDarkReaderSettings();
                 }
@@ -266,7 +257,6 @@ function initializeDarkReaderSystem() {
             };
             document.head.appendChild(script);
             
-            // Function to apply Dark Reader settings
             window.applyDarkReaderSettings = function() {
                 if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
                     DarkReader.enable({
@@ -287,7 +277,6 @@ function initializeDarkReaderSystem() {
         console.error('Failed to inject Dark Reader script:', err);
     });
 
-    // Start monitoring for dark mode enforcement
     if (isDarkModeEnabled) {
         startDarkModeMonitoring();
     }
@@ -296,7 +285,6 @@ function initializeDarkReaderSystem() {
 function applyDarkMode() {
     mainWindow.webContents.executeJavaScript(`
         (async function() {
-            // Ensure Dark Reader is loaded
             if (typeof DarkReader === 'undefined') {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
@@ -328,18 +316,15 @@ function applyDarkMode() {
 }
 
 function startDarkModeMonitoring() {
-    // Clear existing interval if any
     if (darkModeCheckInterval) {
         clearInterval(darkModeCheckInterval);
     }
     
-    // Check every 2 seconds if dark mode is still applied and reapply if needed
     darkModeCheckInterval = setInterval(() => {
         if (isDarkModeEnabled && mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.executeJavaScript(`
                 (function() {
                     if (typeof DarkReader !== 'undefined' && window.isDarkModeEnabled) {
-                        // Check if dark mode is actually applied
                         if (!DarkReader.isEnabled()) {
                             console.log('Dark mode not enabled, reapplying...');
                             DarkReader.enable({
@@ -356,7 +341,6 @@ function startDarkModeMonitoring() {
                     }
                 })();
             `).catch(() => {
-                // Ignore errors during monitoring
             });
         }
     }, 2000);
@@ -372,7 +356,6 @@ function stopDarkModeMonitoring() {
 function toggleDarkMode() {
     mainWindow.webContents.executeJavaScript(`
         (async function() {
-            // Load Dark Reader if missing
             if (typeof DarkReader === 'undefined') {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
@@ -411,7 +394,6 @@ function toggleDarkMode() {
         saveConfig();
         createMenu();
         
-        // Start or stop monitoring based on dark mode state
         if (isDarkModeEnabled) {
             startDarkModeMonitoring();
         } else {
@@ -424,7 +406,6 @@ function toggleDarkMode() {
 }
 
 function createTray() {
-    // Create system tray
     tray = new Tray(path.join(__dirname, 'logo/LmsLogo.png'));
     
     const contextMenu = Menu.buildFromTemplate([
@@ -455,7 +436,6 @@ function createTray() {
     tray.setToolTip('BINUS LMS');
     tray.setContextMenu(contextMenu);
 
-    // Double-click to show/hide window
     tray.on('double-click', () => {
         if (mainWindow.isVisible()) {
             mainWindow.hide();
@@ -477,7 +457,6 @@ function ClearAccount() {
     });
 
     if (response === 0) {
-        // Clear session data
         session.fromPartition('persist:main-session').clearStorageData({
             storages: ['cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers', 'cachestorage']
         }).then(() => {
@@ -496,13 +475,9 @@ function ClearAccount() {
 }
 
 function showExitAnimation() {
-    // Hide main window
     mainWindow.hide();
-    
-    // Stop dark mode monitoring
     stopDarkModeMonitoring();
     
-    // Create exit screen
     exitScreen = new BrowserWindow({
         width: 500,
         height: 400,
@@ -517,10 +492,8 @@ function showExitAnimation() {
         }
     });
 
-    // Center the exit screen
     exitScreen.center();
 
-    // Load the exit screen HTML
     exitScreen.loadFile(path.join(__dirname, 'exit.html'));
     
     exitScreen.webContents.once('did-finish-load', () => {
@@ -529,10 +502,8 @@ function showExitAnimation() {
         `);
     });
 
-    // Show exit screen
     exitScreen.show();
 
-    // Close the app after animation completes
     setTimeout(() => {
         if (exitScreen) {
             exitScreen.close();
@@ -548,39 +519,32 @@ function showExitAnimation() {
 }
 
 app.whenReady().then(() => {
-    // Load configuration before creating the window
     loadConfig();
     createWindow();
     createTray();
 });
 
 app.on('window-all-closed', () => {
-    // Don't quit on window close, keep running in tray
-    // App will only quit when explicitly requested
     stopDarkModeMonitoring();
 });
 
 app.on('before-quit', (event) => {
-    // Allow quit if exit screen is already showing
     if (exitScreen) {
         return;
     }
     
-    // If main window exists and is not destroyed, show exit animation
     if (mainWindow && !mainWindow.isDestroyed()) {
         event.preventDefault();
         showExitAnimation();
     }
 });
 
-// Prevent multiple instances
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
     app.quit();
 } else {
     app.on('second-instance', () => {
-        // Someone tried to run a second instance, focus our window instead
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore();
             mainWindow.show();
@@ -588,10 +552,3 @@ if (!gotTheLock) {
         }
     });
 }
-
-// 1.4.0 Version comes with a big hope
-// This should be the last release and I don't regret it
-// This project start with Shanna, but the end is only me and KanaDev_IS
-// The truth is Windows version is not really tested (Run out of testers)
-// With this... I completely forget about her
-// I don't want to fall in love anymore. I accept my destiny to pledge to technologies and innovation
