@@ -87,13 +87,15 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(33, 150, 243, 0.3), transparent);
+            /* Purple Shine */
+            background: linear-gradient(45deg, transparent, rgba(124, 77, 255, 0.3), transparent);
             animation: finalShine 1.5s ease-in-out forwards;
             transform: rotate(45deg);
         }
 
         html.dark-mode .logo::before {
-            background: linear-gradient(45deg, transparent, rgba(144, 202, 249, 0.4), transparent);
+            /* Light Purple Shine */
+            background: linear-gradient(45deg, transparent, rgba(179, 136, 255, 0.4), transparent);
         }
 
         .title {
@@ -153,15 +155,16 @@
 
         .progress-bar {
             height: 100%;
-            background-color: #2196F3;
+            /* Material Deep Purple */
+            background-color: #7C4DFF;
             width: 100%;
             transform-origin: left;
             animation: progressFill 2s ease-in-out forwards;
         }
 
         html.dark-mode .progress-bar {
-            background-color: #90CAF9;
-            filter: drop-shadow(0 0 8px rgba(144, 202, 249, 0.3));
+            background-color: #B388FF;
+            filter: drop-shadow(0 0 8px rgba(179, 136, 255, 0.3));
         }
 
         .closing-text {
@@ -206,7 +209,8 @@
             position: absolute;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, transparent 70%);
+            /* Purple Orb */
+            background: radial-gradient(circle, rgba(124, 77, 255, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -217,7 +221,7 @@
         }
 
         html.dark-mode .orb {
-            background: radial-gradient(circle, rgba(144, 202, 249, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(179, 136, 255, 0.1) 0%, transparent 70%);
         }
 
         .particles {
@@ -231,14 +235,15 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: rgba(33, 150, 243, 0.6);
+            /* Purple Particles */
+            background: rgba(124, 77, 255, 0.6);
             border-radius: 50%;
             animation: particleFloat 3s ease-out forwards;
             transition: background 0.3s ease;
         }
 
         html.dark-mode .particle {
-            background: rgba(144, 202, 249, 0.6);
+            background: rgba(179, 136, 255, 0.6);
         }
 
         .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0.2s; }
