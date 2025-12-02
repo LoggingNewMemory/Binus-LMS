@@ -8,7 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script>
-        const isDark = new URLSearchParams(window.location.search).get('dark') === 'true';
+        const params = new URLSearchParams(window.location.search);
+        const isDark = params.get('dark') === 'true';
         if (isDark) {
             document.documentElement.classList.add('dark-mode');
         }
@@ -430,10 +431,10 @@
             <div class="logo"></div>
         </div>
         
-        <h1 class="title">BINUS LMS</h1>
-        <p class="subtitle">Learning Management System</p>
+        <h1 class="title" id="pageTitle">BINUS LMS</h1>
+        <p class="subtitle" id="pageSubtitle">Learning Management System</p>
         
-        <div class="goodbye-text">Thank you for using BINUS LMS</div>
+        <div class="goodbye-text" id="goodbyeText">Thank you for using BINUS LMS</div>
         
         <div class="progress-bar-container">
             <div class="progress-bar"></div>
@@ -448,5 +449,17 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const title = params.get('title');
+            const subtitle = params.get('subtitle');
+            const text = params.get('text');
+
+            if (title) document.getElementById('pageTitle').textContent = title;
+            if (subtitle) document.getElementById('pageSubtitle').textContent = subtitle;
+            if (text) document.getElementById('goodbyeText').textContent = text;
+        });
+    </script>
 </body>
 </html>

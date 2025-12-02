@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session, Menu, Tray, dialog } = require('electron');
+const { app, BrowserWindow, session, Menu, Tray, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -15,10 +15,18 @@ app.commandLine.appendSwitch('ignore-gpu-blocklist');
 
 let mainWindow;
 let exitScreen;
+let settingsWindow;
 let tray;
 let isDarkModeEnabled = false; 
 let darkModeCheckInterval;
 let localDarkReaderScript = null;
+
+let customStrings = {
+    title: "BINUS LMS",
+    subtitle: "Learning Management System",
+    loadingText: "Loading",
+    exitText: "Thank you for using BINUS LMS"
+};
 
 const configPath = path.join(app.getPath('userData'), 'config.json');
 const darkReaderPath = path.join(__dirname, 'darkreader.js');
@@ -37,6 +45,10 @@ function loadConfig() {
             const configData = fs.readFileSync(configPath, 'utf8');
             const config = JSON.parse(configData);
             isDarkModeEnabled = config.isDarkModeEnabled || false;
+            
+            if (config.customStrings) {
+                customStrings = { ...customStrings, ...config.customStrings };
+            }
         }
     } catch (error) {
         isDarkModeEnabled = false;
@@ -46,7 +58,8 @@ function loadConfig() {
 function saveConfig() {
     try {
         const config = {
-            isDarkModeEnabled: isDarkModeEnabled
+            isDarkModeEnabled: isDarkModeEnabled,
+            customStrings: customStrings
         };
         
         const configDir = path.dirname(configPath);
@@ -95,6 +108,60 @@ function setupAggressiveCaching() {
     });
 }
 
+function openSettingsWindow() {
+    if (settingsWindow) {
+        settingsWindow.focus();
+        return;
+    }
+
+    settingsWindow = new BrowserWindow({
+        width: 400,
+        height: 450,
+        parent: mainWindow,
+        modal: true,
+        show: false,
+        resizable: false,
+        backgroundColor: isDarkModeEnabled ? '#1e1e1e' : '#ffffff',
+        autoHideMenuBar: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        },
+        icon: path.join(__dirname, 'logo/LmsLogo.png')
+    });
+
+    settingsWindow.loadFile(path.join(__dirname, 'settings.html'), {
+        query: {
+            "dark": isDarkModeEnabled ? "true" : "false",
+            "title": customStrings.title,
+            "subtitle": customStrings.subtitle,
+            "loadingText": customStrings.loadingText,
+            "exitText": customStrings.exitText
+        }
+    });
+
+    settingsWindow.once('ready-to-show', () => {
+        settingsWindow.show();
+    });
+
+    settingsWindow.on('closed', () => {
+        settingsWindow = null;
+    });
+}
+
+ipcMain.on('save-custom-strings', (event, newStrings) => {
+    customStrings = { ...customStrings, ...newStrings };
+    saveConfig();
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+    dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: 'Settings Saved',
+        message: 'Custom messages have been saved and will appear on next restart.'
+    });
+});
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -133,7 +200,12 @@ function createWindow() {
     loadingScreen.center();
     
     loadingScreen.loadFile(path.join(__dirname, 'loading.html'), {
-        query: { "dark": isDarkModeEnabled ? "true" : "false" }
+        query: { 
+            "dark": isDarkModeEnabled ? "true" : "false",
+            "title": customStrings.title,
+            "subtitle": customStrings.subtitle,
+            "text": customStrings.loadingText
+        }
     });
 
     mainWindow.loadURL('https://lms.binus.ac.id/lms/dashboard');
@@ -227,6 +299,12 @@ function createMenu() {
                     click: () => {
                         toggleDarkMode();
                     }
+                },
+                {
+                    label: 'Customize Messages',
+                    click: () => {
+                        openSettingsWindow();
+                    }
                 }
             ]
         },
@@ -298,7 +376,7 @@ function applyDarkMode(targetContents) {
     if (!targetContents || targetContents.isDestroyed()) return;
 
     const url = targetContents.getURL();
-    if (url.includes('loading.html') || url.includes('exit.html')) return;
+    if (url.includes('loading.html') || url.includes('exit.html') || url.includes('settings.html')) return;
 
     if (localDarkReaderScript) {
         targetContents.executeJavaScript(localDarkReaderScript)
@@ -371,7 +449,7 @@ function startDarkModeMonitoring() {
         BrowserWindow.getAllWindows().forEach(win => {
             if (isDarkModeEnabled && win && !win.isDestroyed()) {
                  const url = win.webContents.getURL();
-                 if (url.includes('loading.html') || url.includes('exit.html')) return;
+                 if (url.includes('loading.html') || url.includes('exit.html') || url.includes('settings.html')) return;
 
                 win.webContents.executeJavaScript(`
                     (function() {
@@ -486,7 +564,12 @@ function showExitAnimation() {
     exitScreen.center();
     
     exitScreen.loadFile(path.join(__dirname, 'exit.html'), {
-        query: { "dark": isDarkModeEnabled ? "true" : "false" }
+        query: { 
+            "dark": isDarkModeEnabled ? "true" : "false",
+            "title": customStrings.title,
+            "subtitle": customStrings.subtitle,
+            "text": customStrings.exitText
+        }
     });
 
     exitScreen.show();
