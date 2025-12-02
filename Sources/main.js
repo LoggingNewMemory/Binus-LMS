@@ -21,15 +21,15 @@ let isDarkModeEnabled = false;
 let darkModeCheckInterval;
 let localDarkReaderScript = null;
 
-// DEFINING DEFAULTS
-const DEFAULT_LOADING_TEXT = "Welcome to LMS, Focus on Your Task";
-const DEFAULT_EXIT_TEXT = "Get Some Rest, Good Work!";
+// DEFINING DEFAULTS AS ARRAYS
+const DEFAULT_LOADING_TEXTS = ["Welcome to LMS, Focus on Your Task"];
+const DEFAULT_EXIT_TEXTS = ["Get Some Rest, Good Work!"];
 
 let customStrings = {
     title: "BINUS LMS",
     subtitle: "Learning Management System",
-    loadingText: DEFAULT_LOADING_TEXT,
-    exitText: DEFAULT_EXIT_TEXT
+    loadingText: DEFAULT_LOADING_TEXTS,
+    exitText: DEFAULT_EXIT_TEXTS
 };
 
 const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -52,10 +52,19 @@ function loadConfig() {
             
             if (config.customStrings) {
                 customStrings = { ...customStrings, ...config.customStrings };
+                
+                if (typeof customStrings.loadingText === 'string') {
+                    customStrings.loadingText = [customStrings.loadingText];
+                }
+                if (typeof customStrings.exitText === 'string') {
+                    customStrings.exitText = [customStrings.exitText];
+                }
             }
         }
     } catch (error) {
         isDarkModeEnabled = false;
+        customStrings.loadingText = DEFAULT_LOADING_TEXTS;
+        customStrings.exitText = DEFAULT_EXIT_TEXTS;
     }
 }
 
@@ -75,6 +84,11 @@ function saveConfig() {
     } catch (error) {
         console.error(error);
     }
+}
+
+function getRandomMessage(messageArray) {
+    if (!Array.isArray(messageArray) || messageArray.length === 0) return "";
+    return messageArray[Math.floor(Math.random() * messageArray.length)];
 }
 
 app.on('web-contents-created', (event, contents) => {
@@ -120,7 +134,7 @@ function openSettingsWindow() {
 
     settingsWindow = new BrowserWindow({
         width: 400,
-        height: 450,
+        height: 550, // INCREASED HEIGHT HERE
         parent: mainWindow,
         modal: true,
         show: false,
@@ -134,13 +148,21 @@ function openSettingsWindow() {
         icon: path.join(__dirname, 'logo/LmsLogo.png')
     });
 
+    const loadingTextForUI = Array.isArray(customStrings.loadingText) 
+        ? customStrings.loadingText.join('\n') 
+        : customStrings.loadingText;
+        
+    const exitTextForUI = Array.isArray(customStrings.exitText) 
+        ? customStrings.exitText.join('\n') 
+        : customStrings.exitText;
+
     settingsWindow.loadFile(path.join(__dirname, 'settings.html'), {
         query: {
             "dark": isDarkModeEnabled ? "true" : "false",
             "title": customStrings.title,
             "subtitle": customStrings.subtitle,
-            "loadingText": customStrings.loadingText,
-            "exitText": customStrings.exitText
+            "loadingText": loadingTextForUI,
+            "exitText": exitTextForUI
         }
     });
 
@@ -154,19 +176,27 @@ function openSettingsWindow() {
 }
 
 ipcMain.on('save-custom-strings', (event, newStrings) => {
-    // Logic: If the string is empty or just whitespace, revert to DEFAULT constant.
-    const updatedLoading = (!newStrings.loadingText || newStrings.loadingText.trim() === '') 
-        ? DEFAULT_LOADING_TEXT 
-        : newStrings.loadingText;
+    let updatedLoadingArray = [];
+    if (newStrings.loadingText) {
+        updatedLoadingArray = newStrings.loadingText.split('\n')
+            .map(s => s.trim())
+            .filter(s => s !== '');
+    }
 
-    const updatedExit = (!newStrings.exitText || newStrings.exitText.trim() === '') 
-        ? DEFAULT_EXIT_TEXT 
-        : newStrings.exitText;
+    let updatedExitArray = [];
+    if (newStrings.exitText) {
+        updatedExitArray = newStrings.exitText.split('\n')
+            .map(s => s.trim())
+            .filter(s => s !== '');
+    }
+
+    if (updatedLoadingArray.length === 0) updatedLoadingArray = DEFAULT_LOADING_TEXTS;
+    if (updatedExitArray.length === 0) updatedExitArray = DEFAULT_EXIT_TEXTS;
 
     customStrings = { 
         ...customStrings, 
-        loadingText: updatedLoading,
-        exitText: updatedExit
+        loadingText: updatedLoadingArray,
+        exitText: updatedExitArray
     };
 
     saveConfig();
@@ -176,7 +206,7 @@ ipcMain.on('save-custom-strings', (event, newStrings) => {
     dialog.showMessageBox(mainWindow, {
         type: 'info',
         title: 'Settings Saved',
-        message: 'Custom messages have been saved and will appear on next restart.'
+        message: 'Custom messages have been saved and will appear randomly on next restart.'
     });
 });
 
@@ -217,12 +247,14 @@ function createWindow() {
 
     loadingScreen.center();
     
+    const messageToShow = getRandomMessage(customStrings.loadingText);
+
     loadingScreen.loadFile(path.join(__dirname, 'loading.html'), {
         query: { 
             "dark": isDarkModeEnabled ? "true" : "false",
             "title": customStrings.title,
             "subtitle": customStrings.subtitle,
-            "text": customStrings.loadingText
+            "text": messageToShow
         }
     });
 
@@ -581,12 +613,14 @@ function showExitAnimation() {
 
     exitScreen.center();
     
+    const messageToShow = getRandomMessage(customStrings.exitText);
+    
     exitScreen.loadFile(path.join(__dirname, 'exit.html'), {
         query: { 
             "dark": isDarkModeEnabled ? "true" : "false",
             "title": customStrings.title,
             "subtitle": customStrings.subtitle,
-            "text": customStrings.exitText
+            "text": messageToShow
         }
     });
 

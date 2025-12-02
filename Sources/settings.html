@@ -6,42 +6,78 @@
     <title>Customize Messages</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box; /* Fixes padding calculation issues */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            padding: 20px;
+            margin: 0;
+            padding: 0; /* Move padding to container */
             background: #ffffff;
             color: #333;
             user-select: none;
+            height: 100vh;
+            overflow: hidden; 
         }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Fill exactly the body height */
+            padding: 20px; /* Padding applied inside the 100% height */
+        }
+
         .form-group {
             margin-bottom: 15px;
+            flex: 1; /* Both groups share available space equally */
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Allows flex child to shrink properly */
         }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-weight: 600;
             font-size: 14px;
         }
-        input {
+
+        textarea {
             width: 100%;
-            padding: 8px 12px;
+            flex: 1; /* Take all remaining vertical space in the group */
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
+            resize: none;
+            line-height: 1.5;
+            white-space: pre;
         }
-        input:focus {
+
+        textarea:focus {
             border-color: #29B6F6;
         }
+
+        .helper-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            text-align: right;
+        }
+
         .buttons {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 10px;
+            flex-shrink: 0; /* Prevent buttons from squishing */
         }
+
         button {
-            padding: 8px 16px;
+            padding: 8px 20px;
             border-radius: 6px;
             border: none;
             cursor: pointer;
@@ -49,14 +85,17 @@
             font-size: 14px;
             transition: background 0.2s;
         }
+
         .btn-cancel {
             background: #f5f5f5;
             color: #333;
         }
+
         .btn-save {
             background: #29B6F6;
             color: white;
         }
+
         .btn-save:hover {
             background: #039BE5;
         }
@@ -65,7 +104,7 @@
             background: #1e1e1e;
             color: #eee;
         }
-        body.dark-mode input {
+        body.dark-mode textarea {
             background: #2d2d2d;
             border-color: #444;
             color: #eee;
@@ -74,21 +113,28 @@
             background: #333;
             color: #eee;
         }
+        body.dark-mode .helper-text {
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
-    <div class="form-group">
-        <label>Message Text</label>
-        <input type="text" id="loadingText" placeholder="Welcome to LMS, Focus on Your Task">
-    </div>
-    <div class="form-group">
-        <label>Exit Text</label>
-        <input type="text" id="exitText" placeholder="Get Some Rest, Good Work!">
-    </div>
+    <div class="container">
+        <div class="form-group">
+            <label>Loading Messages</label>
+            <textarea id="loadingText" placeholder="Welcome to LMS, Focus on Your Task"></textarea>
+            <div class="helper-text">One message per line</div>
+        </div>
+        <div class="form-group">
+            <label>Exit Messages</label>
+            <textarea id="exitText" placeholder="Get Some Rest, Good Work!"></textarea>
+            <div class="helper-text">One message per line</div>
+        </div>
 
-    <div class="buttons">
-        <button class="btn-cancel" id="cancelBtn">Cancel</button>
-        <button class="btn-save" id="saveBtn">Save</button>
+        <div class="buttons">
+            <button class="btn-cancel" id="cancelBtn">Cancel</button>
+            <button class="btn-save" id="saveBtn">Save</button>
+        </div>
     </div>
 
     <script>
@@ -99,7 +145,6 @@
             document.body.classList.add('dark-mode');
         }
 
-        // We only populate and save these two fields now
         document.getElementById('loadingText').value = params.get('loadingText') || '';
         document.getElementById('exitText').value = params.get('exitText') || '';
 
@@ -112,7 +157,6 @@
                 loadingText: document.getElementById('loadingText').value,
                 exitText: document.getElementById('exitText').value
             };
-            // Send only the updated fields; main.js will merge them
             ipcRenderer.send('save-custom-strings', config);
         });
     </script>
