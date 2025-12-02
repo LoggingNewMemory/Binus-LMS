@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f1f5f9;
+            background: #fafafa;
             height: 100vh;
             display: flex;
             align-items: center;
@@ -27,15 +27,15 @@
         }
 
         body.dark-mode {
-            background: #0f172a;
+            background: #121212;
         }
 
         .grid-bg {
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
             background-size: 100px 100px;
             animation: gridMove 20s linear infinite;
             transition: background-image 0.3s ease;
@@ -43,15 +43,17 @@
 
         body.dark-mode .grid-bg {
             background-image: 
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
         }
 
         .loading-container {
             text-align: center;
             position: relative;
             z-index: 2;
+            width: 100%;
             max-width: 400px;
+            padding: 0 20px;
             animation: cardFade 0.8s ease-out;
         }
 
@@ -78,17 +80,17 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(129, 140, 248, 0.4), transparent);
+            background: linear-gradient(45deg, transparent, rgba(33, 150, 243, 0.3), transparent);
             animation: logoShine 4s ease-in-out infinite;
             transform: rotate(45deg);
         }
 
         body.dark-mode .logo::before {
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(45deg, transparent, rgba(144, 202, 249, 0.3), transparent);
         }
 
         .title {
-            color: #0f172a;
+            color: #212121;
             font-size: 24px;
             font-weight: 500;
             margin-bottom: 8px;
@@ -97,11 +99,11 @@
         }
 
         body.dark-mode .title {
-            color: #f1f5f9;
+            color: #eeeeee;
         }
 
         .subtitle {
-            color: rgba(15, 23, 42, 0.7);
+            color: rgba(0, 0, 0, 0.6);
             font-size: 14px;
             font-weight: 400;
             margin-bottom: 40px;
@@ -109,52 +111,39 @@
         }
 
         body.dark-mode .subtitle {
-            color: rgba(241, 245, 249, 0.6);
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .progress-ring {
-            width: 80px;
-            height: 80px;
+        .progress-bar-container {
+            width: 240px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
             margin: 0 auto 24px;
             position: relative;
+            overflow: hidden;
         }
 
-        .progress-ring svg {
-            width: 100%;
+        body.dark-mode .progress-bar-container {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .progress-bar {
+            position: absolute;
+            background-color: #2196F3;
             height: 100%;
-            transform: rotate(-90deg);
+            width: 100%;
+            transform-origin: left center;
+            animation: materialIndeterminate 2s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
         }
 
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-        }
-
-        .progress-ring .bg {
-            stroke: rgba(15, 23, 42, 0.1);
-            transition: stroke 0.3s ease;
-        }
-
-        body.dark-mode .progress-ring .bg {
-            stroke: rgba(255, 255, 255, 0.1);
-        }
-
-        .progress-ring .fill {
-            stroke: #6366f1;
-            stroke-dasharray: 251;
-            stroke-dashoffset: 251;
-            animation: progressRing 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
-        }
-
-        body.dark-mode .progress-ring .fill {
-            stroke: #818cf8;
-            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
+        body.dark-mode .progress-bar {
+            background-color: #90CAF9;
+            filter: drop-shadow(0 0 8px rgba(144, 202, 249, 0.3));
         }
 
         .loading-text {
-            color: rgba(15, 23, 42, 0.8);
+            color: rgba(0, 0, 0, 0.87);
             font-size: 14px;
             font-weight: 400;
             display: flex;
@@ -165,7 +154,7 @@
         }
 
         body.dark-mode .loading-text {
-            color: rgba(241, 245, 249, 0.8);
+            color: rgba(255, 255, 255, 0.87);
         }
 
         .dots {
@@ -176,14 +165,14 @@
         .dot {
             width: 4px;
             height: 4px;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 50%;
             animation: dotPulse 1.4s ease-in-out infinite;
             transition: background 0.3s ease;
         }
 
         body.dark-mode .dot {
-            background: rgba(241, 245, 249, 0.6);
+            background: rgba(255, 255, 255, 0.6);
         }
 
         .dot:nth-child(1) { animation-delay: 0s; }
@@ -194,7 +183,7 @@
             position: absolute;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -205,7 +194,7 @@
         }
 
         body.dark-mode .orb {
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(144, 202, 249, 0.1) 0%, transparent 70%);
         }
 
         .particles {
@@ -219,14 +208,14 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: rgba(99, 102, 241, 0.7);
+            background: rgba(33, 150, 243, 0.6);
             border-radius: 50%;
             animation: particleFloat 4s ease-out infinite;
             transition: background 0.3s ease;
         }
 
         body.dark-mode .particle {
-            background: rgba(129, 140, 248, 0.7);
+            background: rgba(144, 202, 249, 0.6);
         }
 
         .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
@@ -256,10 +245,10 @@
             100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
         }
 
-        @keyframes progressRing {
-            0% { stroke-dashoffset: 251; }
-            50% { stroke-dashoffset: 125; }
-            100% { stroke-dashoffset: 0; }
+        @keyframes materialIndeterminate {
+            0% { transform: translateX(-100%) scaleX(0.2); }
+            50% { transform: translateX(0%) scaleX(0.5); }
+            100% { transform: translateX(100%) scaleX(0.2); }
         }
 
         @keyframes dotPulse {
@@ -326,11 +315,8 @@
         <h1 class="title">BINUS LMS</h1>
         <p class="subtitle">Learning Management System</p>
         
-        <div class="progress-ring">
-            <svg>
-                <circle class="bg" cx="40" cy="40" r="36"></circle>
-                <circle class="fill" cx="40" cy="40" r="36"></circle>
-            </svg>
+        <div class="progress-bar-container">
+            <div class="progress-bar"></div>
         </div>
         
         <div class="loading-text">
